@@ -20,7 +20,7 @@ export default function RightPanel() {
       <div className="lg:hidden z-40 fixed inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Wrapper */}
-      <div className="z-50 lg:static fixed inset-0 flex lg:flex justify-center items-center">
+      <div className="z-50 lg:static fixed inset-0 flex lg:flex justify-center">
         
         <div
           className="lg:top-0 lg:sticky flex flex-col bg-[#090909] shadow-lg lg:shadow-none rounded-2xl lg:rounded-none w-[90%] lg:min-w-lg max-w-md lg:max-w-lg h-[80vh] lg:h-svh"
