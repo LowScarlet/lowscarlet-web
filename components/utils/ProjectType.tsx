@@ -5,7 +5,7 @@ import { PiStudentBold } from "react-icons/pi"
 
 export const project_type = {
   finalProjectThesis: {
-    title: 'Ungreaduate Final Project Thesis',
+    title: 'Undergraduate Final Project',
     icon: <PiStudentBold />,
     link: undefined
   },

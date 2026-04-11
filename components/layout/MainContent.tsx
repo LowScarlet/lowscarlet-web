@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/libs/utils";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { AiOutlineLink } from "react-icons/ai";
+import { motion } from "framer-motion";
 
 const social_media = [
   {
@@ -72,16 +73,27 @@ export default function MainContent() {
             </h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm"><FiGithub className="inline" /> LowScarlet</p>
           </div>
-          <button
-            className="group flex justify-center items-center bg-clip-text bg-linear-to-r from-pink-500 to-violet-500 hover:brightness-150 rounded-full w-12 h-12 overflow-hidden text-transparent dark:hover:text-white dark:text-gray-400 transition duration-300 ease-in-out hover:cursor-pointer"
-          >
-            <div>
-              <div className="flex justify-center items-center text-violet-500 dark:text-current">
-                <GoHeart className="group-hover:hidden font-bold text-2xl" />
-                <GoHeartFill className="hidden group-hover:inline font-bold text-2xl" />
-              </div>
-              <h1 className="font-bold text-xs text-center">100</h1>
-            </div>
+          <button className="group flex flex-col justify-center items-center rounded-full w-12 h-12 text-pink-500 dark:text-violet-400 transition cursor-pointer">
+
+            <motion.div
+              variants={{
+                rest: { x: 0 },
+                hover: {
+                  x: [0, -3, 3, -3, 3, 0],
+                  transition: { duration: 0.4 },
+                },
+              }}
+              initial="rest"
+              animate="rest"
+              whileHover="hover"
+            >
+              <GoHeart className="group-hover:hidden text-2xl" />
+              <GoHeartFill className="hidden group-hover:inline text-2xl" />
+            </motion.div>
+
+            <h1 className="font-bold text-xs text-center">
+              100
+            </h1>
           </button>
         </div>
       </div>
@@ -149,6 +161,6 @@ export default function MainContent() {
           })}
         </div>
       </div>
-    </div>
+    </div >
   );
 }

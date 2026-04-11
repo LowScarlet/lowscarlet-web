@@ -2,9 +2,13 @@
 "use client";
 
 import Badge from "@/components/utils/Badge";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type ProjectProps = {
+  images: string[];
   title: string;
   description: string;
   tags: any[];
@@ -13,21 +17,52 @@ type ProjectProps = {
     href: string;
     icon: any;
   }[];
+  contributors?: string[],
   isLast?: boolean;
 };
 
 export default function ProjectCard({
+  images = [],
   title,
   description,
   tags,
   techs,
   links,
+  contributors,
   isLast = false
 }: ProjectProps) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   return (
     <div className="space-y-4">
       <div>
-        <div className="bg-amber-600 p-20 rounded-2xl" />
+        <div className="relative rounded-2xl w-full aspect-video overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.5 }}
+              className="relative w-full h-full"
+            >
+              <Image
+                src={images[index]}
+                alt="project image 16:9"
+                fill
+                className="object-cover"
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
         <h1 className="mt-4 font-bold text-xl">{title}</h1>
 
         <div className="flex flex-wrap gap-2">
@@ -60,9 +95,20 @@ export default function ProjectCard({
           ))}
         </div>
 
+        {/* CONTRIBUTORS */}
+        {contributors && contributors.length > 1 && (
+          <div className="mt-4">
+            <span className="font-medium text-sm">Contributors: </span>
+            {contributors.length === 2
+              ? `${contributors[0]} and ${contributors[1]}`
+              : `${contributors.slice(0, -1).join(", ")} and ${contributors.at(-1)}`
+            }
+          </div>
+        )}
+
         {/* TECH STACK */}
         <div className="flex flex-wrap gap-2 mt-4">
-          <span className="font-medium text-sm">Techs:</span>
+          <span className="font-medium text-sm">Tech Stacks:</span>
           {techs.map((item, i) => (
             <Badge
               key={i}
