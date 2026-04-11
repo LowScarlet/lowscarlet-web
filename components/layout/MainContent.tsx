@@ -7,13 +7,10 @@ import { FiGithub, FiInstagram, FiMail } from "react-icons/fi";
 import { BiLogoLinkedin } from "react-icons/bi";
 import { techs } from "../utils/Techs";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/libs/utils";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { AiOutlineLink } from "react-icons/ai";
-import { usePanelStore } from "@/store/usePanelStore";
-import { useSearchParams } from "next/navigation";
-import { cn } from "@/libs/utils";
-import { useEffect } from "react";
-import ProjectRoot from "../project/ProjectRoot";
 
 const social_media = [
   {
@@ -40,38 +37,22 @@ const social_media = [
 
 const projects = [
   {
-    href: '?showProjects=webs',
-    title: 'Web Applications'
+    href: "/projects/webs",
+    title: "Web Applications"
   },
   {
-    href: '?showProjects=androidApps',
-    title: 'Android Applications'
+    href: "/projects/androidApps",
+    title: "Android Applications"
   },
   {
-    href: '?showProjects=games',
-    title: 'Game Developments'
-  },
-]
+    href: "/projects/games",
+    title: "Game Developments"
+  }
+];
 
 export default function MainContent() {
-  const searchParams = useSearchParams();
-  const { openRight, closeRight } = usePanelStore();
+  const pathname = usePathname();
   const { nextJs, expressJs, prismaOrm } = techs
-  const showProjects = searchParams.get("showProjects");
-
-  useEffect(() => {
-    if (showProjects) {
-      const current = projects.find(
-        (item) => item.href === `?showProjects=${showProjects}`
-      );
-      openRight({
-        title: <div>{current?.title}</div>,
-        content: <ProjectRoot />
-      });
-    } else {
-      closeRight()
-    }
-  }, [closeRight, openRight, showProjects]);
 
   return (
     <div className="space-y-8 bg-[#101010] px-8 py-10 sm:min-w-lg max-w-sm h-full">
@@ -138,11 +119,34 @@ export default function MainContent() {
         </div>
       </div>
       <div>
-        <h1 className="flex items-center space-x-2 font-bold text-xl"><FaStar className="inline" /> <span>Featured Projects</span></h1>
+        <h1 className="flex items-center space-x-2 font-bold text-xl">
+          <FaStar className="inline" />
+          <span>Featured Projects</span>
+        </h1>
+
         <div className="mt-2">
-          {projects.map((item) => (
-            <Link scroll={false} key={item.href} href={`?showProjects=${showProjects}` === item.href ? '/' : item.href} className={cn("flex justify-between items-center space-x-2 px-1 py-2 w-full hover:text-white text-lg cursor-pointer", `?showProjects=${showProjects}` === item.href ? 'text-white' : 'text-gray-400')}><span className="flex items-center space-2"><MdOutlineKeyboardArrowRight className="text-2xl" /> <span>{item.title}</span> </span><AiOutlineLink className='text-2xl' /></Link>
-          ))}
+          {projects.map((item) => {
+            const isActive = pathname === item.href;
+
+            return (
+              <Link
+                key={item.href}
+                href={isActive ? "/" : item.href}
+                scroll={false}
+                className={cn(
+                  "flex justify-between items-center px-1 py-2 w-full text-lg cursor-pointer",
+                  isActive ? "text-white" : "text-gray-400 hover:text-white"
+                )}
+              >
+                <span className="flex items-center space-x-2">
+                  <MdOutlineKeyboardArrowRight className="text-2xl" />
+                  <span>{item.title}</span>
+                </span>
+
+                <AiOutlineLink className="text-2xl" />
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

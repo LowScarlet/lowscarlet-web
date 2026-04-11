@@ -28,12 +28,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+  right
+}: {
   children: React.ReactNode;
-}>) {
+  right: React.ReactNode;
+}) {
   return (
-    <html lang="en" className='transition duration-300 ease-in-out'>
-      <body className={hanken_grotesk.className}>{children}</body>
+    <html>
+      <body className={hanken_grotesk.className}>
+        <div className="flex justify-center bg-[#101010] w-full min-h-screen text-white">
+          <div className="flex">
+
+            {/* MAIN */}
+            <div className="flex-1 shadow-xl">
+              {children}
+            </div>
+
+            {/* RIGHT PANEL */}
+            {right}
+
+          </div>
+        </div>
+      </body>
     </html>
   );
 }
