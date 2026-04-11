@@ -56,7 +56,7 @@ export default function MainContent() {
   const { nextJs, expressJs, prismaOrm } = techs
 
   return (
-    <div className="space-y-8 bg-[#101010] px-8 py-10 sm:min-w-lg max-w-sm h-full">
+    <div className="space-y-8 bg-[#101010] px-8 py-10 sm:min-w-lg max-w-md h-full">
       <div>
         <div className="flex items-center space-x-2">
           <button className="group">
