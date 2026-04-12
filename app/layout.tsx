@@ -28,9 +28,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  right
+  left,
+  right,
 }: {
   children: React.ReactNode;
+  left: React.ReactNode;
   right: React.ReactNode;
 }) {
   return (
@@ -38,6 +40,9 @@ export default function RootLayout({
       <body className={hanken_grotesk.className}>
         <div className="flex justify-center bg-[#101010] w-full min-h-screen text-white">
           <div className="flex">
+
+            {/* LEFT PANEL */}
+            {left}
 
             {/* MAIN */}
             <div className="flex-1 shadow-xl">

@@ -2,6 +2,7 @@
 "use client";
 
 import Badge from "@/components/utils/Badge";
+import { formatDate } from "@/libs/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +19,8 @@ type ProjectProps = {
     icon: any;
   }[];
   contributors?: string[];
+  startDate: Date,
+  releaseDate?: Date,
   isLast?: boolean;
 };
 
@@ -48,6 +51,8 @@ export default function ProjectCard({
   techs,
   links,
   contributors,
+  startDate,
+  releaseDate,
   isLast = false,
 }: ProjectProps) {
   const [index, setIndex] = useState(0);
@@ -134,6 +139,16 @@ export default function ProjectCard({
                 <Icon className="text-2xl" />
               </Link>
             ))}
+          </motion.div>
+
+          {/* START AND RELEASE DATE */}
+          <motion.div variants={item} className="mt-4">
+            <span className="font-medium text-sm">Development Date: </span>
+            <span>
+              {formatDate(startDate)}{" "}
+              -{" "}
+              {releaseDate ? formatDate(releaseDate) : "Present"}
+            </span>
           </motion.div>
 
           {/* CONTRIBUTORS */}

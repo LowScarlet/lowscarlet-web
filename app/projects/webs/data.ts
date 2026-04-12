@@ -37,6 +37,8 @@ export const projects = [
         icon: FaWhatsapp,
       },
     ],
+    startDate: new Date(),
+    releaseDate: new Date(),
     contributors: [
       'Tegar Maulana Fahreza',
       'Ahmed Aladin'

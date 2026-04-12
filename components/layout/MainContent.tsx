@@ -63,7 +63,7 @@ export default function MainContent() {
       <motion.div variants={item}>
         <div className="flex items-center">
           <div className="group grow">
-            <button className="group flex space-x-2 w-fit text-start cursor-pointer">
+            <Link href={!(pathname === '/dashboard') ? "/dashboard" : '/'} className="group flex space-x-2 w-fit text-start cursor-pointer">
               <div className="bg-linear-to-r from-pink-500 to-violet-500 p-0.5 rounded-full">
                 <div className="group-hover:opacity-90 rounded-full w-12 h-12 overflow-hidden transition duration-300">
 
@@ -87,7 +87,7 @@ export default function MainContent() {
                   <FiGithub className="inline" /> LowScarlet
                 </p>
               </div>
-            </button>
+            </Link>
           </div>
 
           {/* LIKE BUTTON */}

@@ -13,7 +13,7 @@ export default function RightPanel() {
       <div className="flex justify-between items-center p-6">
         <h1 className="flex items-center space-x-2">
           <FaRegFolder />
-          <span>Web Applications</span>
+          <span>Android Applications</span>
         </h1>
 
         <div className="flex space-x-2">
