@@ -48,9 +48,10 @@ const item = {
   },
 };
 
+const { nextJs, expressJs, drizzleOrm } = techs;
+
 export default function MainContent() {
   const pathname = usePathname();
-  const { nextJs, expressJs, prismaOrm } = techs;
 
   return (
     <motion.div
@@ -141,7 +142,7 @@ export default function MainContent() {
           Currently working in a small and messing project with{" "}
           <Badge title={nextJs.title} icon={nextJs.icon} href={nextJs.link} />,{" "}
           <Badge title={expressJs.title} icon={expressJs.icon} href={expressJs.link} />,{" "}
-          <Badge title={prismaOrm.title} icon={prismaOrm.icon} href={prismaOrm.link} /> & some other tooling.
+          <Badge title={drizzleOrm.title} icon={drizzleOrm.icon} href={drizzleOrm.link} /> & some other tooling.
         </p>
 
         {/* SOCIAL */}

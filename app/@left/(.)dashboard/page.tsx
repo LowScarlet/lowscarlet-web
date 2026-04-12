@@ -204,19 +204,6 @@ export default function LeftPanel() {
           </h1>
 
           <div className="flex gap-2">
-            {/* ATS */}
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="flex-1">
-              <Link
-                href="/cv-ats.pdf"
-                target="_blank"
-                className="block relative bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded-lg overflow-hidden font-medium text-sm text-center transition"
-              >
-                {/* subtle shine */}
-                <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition" />
-                ATS Version
-              </Link>
-            </motion.div>
-
             {/* CREATIVE */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="flex-1">
               <Link
@@ -227,6 +214,19 @@ export default function LeftPanel() {
                 {/* glow pulse */}
                 <span className="absolute inset-0 bg-white/20 opacity-30 blur-lg" />
                 Creative
+              </Link>
+            </motion.div>
+
+            {/* ATS */}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="flex-1">
+              <Link
+                href="/cv-ats.pdf"
+                target="_blank"
+                className="block relative bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded-lg overflow-hidden font-medium text-sm text-center transition"
+              >
+                {/* subtle shine */}
+                <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition" />
+                ATS Version
               </Link>
             </motion.div>
           </div>
@@ -324,7 +324,7 @@ export default function LeftPanel() {
             >
               <GrUpdate />
             </motion.span>
-            <span>My Website Commit History</span>
+            <span>My Website Commits</span>
           </h1>
 
           <motion.div

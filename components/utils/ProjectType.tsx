@@ -14,4 +14,9 @@ export const project_type = {
     icon: <CgWebsite />,
     link: undefined
   },
+  webApplication: {
+    title: 'Web Application',
+    icon: <CgWebsite />,
+    link: undefined
+  },
 }

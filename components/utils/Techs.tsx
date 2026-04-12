@@ -1,6 +1,6 @@
 "use client"
 
-import { SiExpress, SiPostgresql, SiPrisma, SiRailway, SiVercel } from "react-icons/si"
+import { SiDrizzle, SiExpress, SiPostgresql, SiPrisma, SiRailway, SiVercel } from "react-icons/si"
 import { TbBrandNextjs } from "react-icons/tb"
 
 export const techs = {
@@ -18,6 +18,11 @@ export const techs = {
     title: 'Prisma ORM',
     icon: <SiPrisma />,
     link: 'https://www.prisma.io/'
+  },
+  drizzleOrm: {
+    title: 'Drizzle ORM',
+    icon: <SiDrizzle />,
+    link: 'https://orm.drizzle.team/'
   },
   postgreSql: {
     title: 'PostgreSql',
