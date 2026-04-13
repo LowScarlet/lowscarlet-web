@@ -44,3 +44,5 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #6b7280 transparent;
 }
+
+@plugin "@tailwindcss/typography";

@@ -137,7 +137,7 @@ export default function LeftPanel() {
             <motion.div
               variants={item}
               whileHover={{ scale: 1.03 }}
-              className="relative bg-neutral-800 p-4 rounded-xl overflow-hidden"
+              className="relative bg-neutral-800 p-4 rounded-xl overflow-hidden cursor-pointer"
             >
               <div className="absolute inset-0 bg-linear-to-r from-pink-500/10 to-violet-500/10" />
 
@@ -153,7 +153,7 @@ export default function LeftPanel() {
             <motion.div
               variants={item}
               whileHover={{ scale: 1.03 }}
-              className="relative bg-neutral-800 p-4 rounded-xl overflow-hidden"
+              className="relative bg-neutral-800 p-4 rounded-xl overflow-hidden cursor-pointer"
             >
               <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-cyan-500/10" />
 
