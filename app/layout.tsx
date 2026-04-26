@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
+import SecondaryContent from "@/components/layout/SecondaryContent";
 
 const hanken_grotesk = Hanken_Grotesk({ subsets: ['latin'] })
 
@@ -45,7 +46,7 @@ export default function RootLayout({
             {left}
 
             {/* MAIN */}
-            <div className="flex-1 shadow-xl">
+            <div className="lg:z-60 flex-1 bg-[#101010] shadow-xl">
               {children}
             </div>
 
@@ -54,6 +55,7 @@ export default function RootLayout({
 
           </div>
         </div>
+        {/* <SecondaryContent /> */}
       </body>
     </html>
   );
