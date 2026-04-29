@@ -38,8 +38,8 @@ export default function RootLayout({
 }) {
   return (
     <html>
-      <body className={hanken_grotesk.className}>
-        <div className="flex justify-center bg-[#101010] w-full min-h-screen text-white">
+      <body className={hanken_grotesk.className + ' bg-[#101010]'}>
+        <div className="flex justify-center w-full min-h-screen text-white">
           <div className="flex">
 
             {/* LEFT PANEL */}
