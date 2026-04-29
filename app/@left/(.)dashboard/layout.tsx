@@ -10,6 +10,11 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
   const isOpen = pathname.includes('/dashboard');
+  const isHome = pathname == '/';
+
+  if (!isOpen && !isHome) {
+    return (undefined)
+  }
 
   return (
     <AnimatePresence>
