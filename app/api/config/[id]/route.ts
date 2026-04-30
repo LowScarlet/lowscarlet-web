@@ -5,12 +5,14 @@ import { eq } from "drizzle-orm";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   const result = await db
     .select()
     .from(config)
-    .where(eq(config.id, params.id))
+    .where(eq(config.id, id))
     .limit(1);
 
   if (!result[0]) {
