@@ -18,9 +18,11 @@ export const comments = pgTable("comments", {
   createdAt: timestamp().defaultNow(),
 });
 
-export const visitors = pgTable("comments", {
+export const visitors = pgTable("visitors", {
   id: uuid().defaultRandom().primaryKey(),
-  ipAddress: text().notNull(),
+  ipAddress: text().notNull().unique(),
+  country: text(),
+  city: text(),
   createdAt: timestamp().defaultNow(),
 });
 

@@ -46,7 +46,7 @@ export default function SecondaryContent() {
       {/* TRIGGER */}
       <section
         ref={ref}
-        className="flex justify-center items-center bg-red-500 h-[200px]"
+        className="flex justify-center items-center bg-red-500 h-50"
       >
         asdasd (trigger disini)
       </section>

@@ -12,3 +12,10 @@ export const formatDate = (date: Date) => {
     year: "numeric",
   }).format(date);
 };
+
+export function formatNumber(num: number) {
+  return new Intl.NumberFormat("en", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(num);
+}

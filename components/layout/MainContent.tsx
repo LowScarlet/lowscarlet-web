@@ -14,6 +14,9 @@ import { cn } from "@/libs/utils";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { AiOutlineLink } from "react-icons/ai";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { Counter } from "../utils/Counter";
+import { AppConfigMap } from "@/db/queries/config";
 
 const social_media = [
   { href: 'https://github.com/LowScarlet', icon: <FiGithub className='text-2xl' /> },
@@ -52,6 +55,32 @@ const { nextJs, expressJs, drizzleOrm } = techs;
 
 export default function MainContent() {
   const pathname = usePathname();
+  const [config, setConfig] = useState<AppConfigMap | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        setLoading(true);
+
+        const res = await fetch("/api/config");
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch config");
+        }
+
+        const data = await res.json();
+        setConfig(data);
+      } catch {
+        setError("Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConfig();
+  }, []);
 
   return (
     <motion.div
@@ -71,7 +100,6 @@ export default function MainContent() {
                   <Image
                     width={100}
                     height={100}
-                    quality={100}
                     src={"/pp.png"}
                     alt={"/pp.png"}
                     className="object-cover"
@@ -110,8 +138,9 @@ export default function MainContent() {
               <GoHeart className="group-hover:hidden text-2xl" />
               <GoHeartFill className="hidden group-hover:inline text-2xl" />
             </motion.div>
-
-            <h1 className="font-bold text-xs text-center">100</h1>
+            <h1 className="font-bold text-xs text-center">
+              {loading || error ? 0 : <Counter value={config?.COMMENTS_COUNT ?? 0} />}
+            </h1>
           </motion.button>
         </div>
       </motion.div>

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
-import SecondaryContent from "@/components/layout/SecondaryContent";
-
-const hanken_grotesk = Hanken_Grotesk({ subsets: ['latin'] })
+import { ensureConfigs } from "@/db/queries/config";
+import MainLayout from "@/components/layout/MainLayout";
 
 export const metadata: Metadata = {
   title: 'LowScarlet - Personal Website',
@@ -27,7 +25,7 @@ export const metadata: Metadata = {
   publisher: "Vercel"
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   left,
   right,
@@ -36,27 +34,22 @@ export default function RootLayout({
   left: React.ReactNode;
   right: React.ReactNode;
 }) {
+  await ensureConfigs();
+
   return (
-    <html>
-      <body className={hanken_grotesk.className + ' bg-[#101010]'}>
-        <div className="flex justify-center w-full min-h-screen text-white">
-          <div className="flex">
+    <MainLayout>
+      <div className="flex">
+        {/* LEFT PANEL */}
+        {left}
 
-            {/* LEFT PANEL */}
-            {left}
-
-            {/* MAIN */}
-            <div className="lg:z-60 flex-1 bg-[#101010] shadow-xl">
-              {children}
-            </div>
-
-            {/* RIGHT PANEL */}
-            {right}
-
-          </div>
+        {/* MAIN */}
+        <div className="lg:z-60 flex-1 bg-[#101010] shadow-xl">
+          {children}
         </div>
-        {/* <SecondaryContent /> */}
-      </body>
-    </html>
+
+        {/* RIGHT PANEL */}
+        {right}
+      </div>
+    </MainLayout>
   );
 }

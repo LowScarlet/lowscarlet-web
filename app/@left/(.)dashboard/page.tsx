@@ -10,7 +10,9 @@ import Image from "next/image";
 import { SiReaddotcv } from "react-icons/si";
 import { GrUpdate } from "react-icons/gr";
 import { IoWarningOutline } from "react-icons/io5";
-import { MdWork } from "react-icons/md";
+import { AppConfigMap } from "@/db/queries/config";
+import { Counter } from "@/components/utils/Counter";
+import { cn } from "@/libs/utils";
 
 const blogs = [
   {
@@ -63,6 +65,9 @@ const item = {
 };
 
 export default function LeftPanel() {
+  const [config, setConfig] = useState<AppConfigMap | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [index, setIndex] = useState(0);
 
@@ -74,6 +79,29 @@ export default function LeftPanel() {
     }, 3000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        setLoading(true);
+
+        const res = await fetch("/api/config");
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch config");
+        }
+
+        const data = await res.json();
+        setConfig(data);
+      } catch {
+        setError("Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConfig();
   }, []);
 
   return (
@@ -146,7 +174,7 @@ export default function LeftPanel() {
                   <h2 className="text-gray-400 text-xs">Visitors</h2>
                   <FaUsers className="text-pink-400 text-sm" />
                 </div>
-                <p className="mt-1 font-bold text-white text-xl">1,284</p>
+                <p className="mt-1 font-bold text-white text-xl">{loading || error ? 0 : <Counter value={config?.VISITORS_COUNT ?? 0} />}</p>
               </div>
             </motion.div>
 
@@ -162,7 +190,7 @@ export default function LeftPanel() {
                   <h2 className="text-gray-400 text-xs">Projects</h2>
                   <FaCode className="text-blue-400 text-sm" />
                 </div>
-                <p className="mt-1 font-bold text-white text-xl">12</p>
+                <p className="mt-1 font-bold text-white text-xl">{loading || error ? 0 : <Counter value={config?.PROJECTS_COUNT ?? 0} />}</p>
               </div>
             </motion.div>
 
@@ -176,12 +204,41 @@ export default function LeftPanel() {
           >
             <div>
               <h2 className="text-gray-400 text-xs">Status</h2>
-              <p className="font-medium text-green-400">Available for work</p>
+
+              <p
+                className={cn(
+                  "font-medium",
+                  config?.STATUS === "AVAILABLE"
+                    ? "text-green-400"
+                    : config?.STATUS === "NOT_AVAILABLE"
+                      ? "text-red-400"
+                      : "text-violet-500"
+                )}
+              >
+                {config?.STATUS_NOTE ?? "Doing Something..."}
+              </p>
             </div>
 
-            <div className="flex items-center gap-2 text-green-400">
-              <span className="bg-green-400 rounded-full w-2 h-2 animate-pulse" />
-              <MdWork />
+            <div
+              className={cn(
+                "flex items-center gap-2",
+                config?.STATUS === "AVAILABLE"
+                  ? "text-green-400"
+                  : config?.STATUS === "NOT_AVAILABLE"
+                    ? "text-red-400"
+                    : "text-violet-500"
+              )}
+            >
+              <span
+                className={cn(
+                  "rounded-full w-2 h-2 animate-pulse",
+                  config?.STATUS === "AVAILABLE"
+                    ? "bg-green-400"
+                    : config?.STATUS === "NOT_AVAILABLE"
+                      ? "bg-red-400"
+                      : "bg-violet-500"
+                )}
+              />
             </div>
           </motion.div>
         </motion.div>
