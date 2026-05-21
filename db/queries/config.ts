@@ -29,7 +29,7 @@ export const defaultConfigs = [
 type DefaultConfigs = typeof defaultConfigs;
 
 type ConfigMap = {
-  [K in DefaultConfigs[number] as K["id"]]: K["value"];
+  [K in DefaultConfigs[number]as K["id"]]: K["value"];
 };
 
 type Normalize<T> =
@@ -87,9 +87,20 @@ export function mapConfigs(configs: { id: string; value: any }[]) {
   );
 }
 
-export async function getAllConfigs() {
+export async function getAllConfigs(): Promise<AppConfigMap> {
   const raw = await db.select().from(config);
-  return mapConfigs(raw)
+
+  const mapped = Object.fromEntries(
+    raw.map(c => [c.id, c.value])
+  ) as Partial<AppConfigMap>;
+
+  return {
+    STATUS: mapped.STATUS ?? "AVAILABLE_FOR_WORK",
+    STATUS_NOTE: mapped.STATUS_NOTE ?? "Available for work!",
+    VISITORS_COUNT: Number(mapped.VISITORS_COUNT ?? 0),
+    PROJECTS_COUNT: Number(mapped.PROJECTS_COUNT ?? 0),
+    COMMENTS_COUNT: Number(mapped.COMMENTS_COUNT ?? 0),
+  };
 }
 
 export async function incrementVisitorsCount() {
