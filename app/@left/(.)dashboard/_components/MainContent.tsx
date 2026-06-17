@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
-import { FaBlog, FaCode, FaRegFolder, FaUsers } from "react-icons/fa";
+import { FaBlog, FaCode, FaRegFolder, FaUsers, FaLock, FaLockOpen, FaEdit, FaPlus, FaTrash, FaSpinner } from "react-icons/fa";
 import { LuExpand } from "react-icons/lu";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -13,6 +14,7 @@ import { IoWarningOutline } from "react-icons/io5";
 import { AppConfigMap } from "@/db/queries/config";
 import { Counter } from "@/components/utils/Counter";
 import { cn } from "@/libs/utils";
+import Modal from "@/components/utils/Modal";
 
 const blogs = [
   {
@@ -27,7 +29,7 @@ const blogs = [
   },
 ];
 
-const commits = [
+const staticCommits = [
   {
     message: "feat: add dashboard layout",
     date: "2026-04-12",
@@ -70,6 +72,274 @@ export default function MainContent({
   config: AppConfigMap;
 }) {
   const [index, setIndex] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const [currentConfig, setCurrentConfig] = useState<AppConfigMap>(config);
+
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
+
+  const [selectedStatus, setSelectedStatus] = useState(config.STATUS ?? "AVAILABLE_FOR_WORK");
+  const [statusNote, setStatusNote] = useState(config.STATUS_NOTE ?? "");
+  const [isSubmittingStatus, setIsSubmittingStatus] = useState(false);
+  const [statusError, setStatusError] = useState("");
+
+  const [showProjectsModal, setShowProjectsModal] = useState(false);
+  const [activeView, setActiveView] = useState<"list" | "add" | "edit">("list");
+  const [editingProject, setEditingProject] = useState<any>(null);
+  const [projectsList, setProjectsList] = useState<any[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+  const [commitsList, setCommitsList] = useState<any[]>(staticCommits);
+
+  // Form states
+  const [pTitle, setPTitle] = useState("");
+  const [pCategory, setPCategory] = useState("webs");
+  const [pDescription, setPDescription] = useState("");
+  const [pImagesList, setPImagesList] = useState<{ no: number; src: string }[]>([]);
+  const [manualImageUrl, setManualImageUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [pTags, setPTags] = useState<string[]>([]);
+  const [pTechs, setPTechs] = useState<string[]>([]);
+  const [pGithub, setPGithub] = useState("");
+  const [pDemo, setPDemo] = useState("");
+  const [pContact, setPContact] = useState("");
+  const [pFigma, setPFigma] = useState("");
+  const [pBehance, setPBehance] = useState("");
+  const [pContributors, setPContributors] = useState(""); // comma separated
+  const [pStartDate, setPStartDate] = useState("");
+  const [pReleaseDate, setPReleaseDate] = useState("");
+  const [isSavingProject, setIsSavingProject] = useState(false);
+  const [projectError, setProjectError] = useState("");
+
+  const availableTags = [
+    { key: "finalProjectThesis", title: "Undergraduate Final Project" },
+    { key: "casualWebsite", title: "Casual Website" },
+    { key: "webApplication", title: "Web Application" },
+    { key: "androidApp", title: "Android Application" },
+    { key: "mobileApplication", title: "Mobile Application" },
+    { key: "gameDevelopment", title: "Game Development" },
+    { key: "indieGame", title: "Indie Game" },
+    { key: "desktopApp", title: "Desktop Application" },
+    { key: "iotProject", title: "IoT & Hardware" },
+    { key: "uiuxDesign", title: "UI/UX Design" }
+  ];
+
+  const availableTechs = [
+    { key: "nextJs", title: "Next.js" },
+    { key: "expressJs", title: "Express.js" },
+    { key: "prismaOrm", title: "Prisma ORM" },
+    { key: "drizzleOrm", title: "Drizzle ORM" },
+    { key: "postgreSql", title: "PostgreSql" },
+    { key: "railway", title: "Railway" },
+    { key: "vercel", title: "Vercel" },
+    { key: "kotlin", title: "Kotlin" },
+    { key: "java", title: "Java" },
+    { key: "flutter", title: "Flutter" },
+    { key: "reactNative", title: "React Native" },
+    { key: "androidStudio", title: "Android Studio" },
+    { key: "unity", title: "Unity" },
+    { key: "cSharp", title: "C#" },
+    { key: "unrealEngine", title: "Unreal Engine" },
+    { key: "godot", title: "Godot" },
+    { key: "cPlusPlus", title: "C++" },
+    { key: "figma", title: "Figma" },
+    { key: "behance", title: "Behance" },
+    { key: "arduino", title: "Arduino" },
+    { key: "raspberryPi", title: "Raspberry Pi" }
+  ];
+
+  const fetchAllProjects = async () => {
+    try {
+      setIsLoadingProjects(true);
+      const res = await fetch("/api/projects");
+      if (res.ok) {
+        const data = await res.json();
+        setProjectsList(data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showProjectsModal) {
+      fetchAllProjects();
+    }
+  }, [showProjectsModal]);
+
+  const handleDeleteProject = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this project?")) return;
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchAllProjects();
+      } else {
+        alert("Failed to delete project");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error deleting project");
+    }
+  };
+
+  const handleSaveProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProjectError("");
+    setIsSavingProject(true);
+
+    const linksArray = [];
+    if (pGithub) linksArray.push({ href: pGithub, icon: "github" });
+    if (pDemo) linksArray.push({ href: pDemo, icon: "link" });
+    if (pContact) linksArray.push({ href: pContact, icon: "whatsapp" });
+    if (pFigma) linksArray.push({ href: pFigma, icon: "figma" });
+    if (pBehance) linksArray.push({ href: pBehance, icon: "behance" });
+
+    const contributorsArray = pContributors
+      .split(",")
+      .map((c) => c.trim())
+      .filter((c) => c.length > 0);
+
+    const payload = {
+      title: pTitle,
+      category: pCategory,
+      description: pDescription,
+      images: pImagesList,
+      tags: pTags,
+      techs: pTechs,
+      links: linksArray,
+      contributors: contributorsArray,
+      startDate: pStartDate ? new Date(pStartDate).toISOString() : null,
+      releaseDate: pReleaseDate ? new Date(pReleaseDate).toISOString() : null,
+    };
+
+    try {
+      const url = activeView === "edit" ? `/api/projects/${editingProject.id}` : "/api/projects";
+      const method = activeView === "edit" ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setActiveView("list");
+        setEditingProject(null);
+        resetProjectForm();
+        fetchAllProjects();
+      } else {
+        const err = await res.json();
+        setProjectError(err.message || "Failed to save project");
+      }
+    } catch (e) {
+      console.error(e);
+      setProjectError("Failed to save project");
+    } finally {
+      setIsSavingProject(false);
+    }
+  };
+
+  const resetProjectForm = () => {
+    setPTitle("");
+    setPCategory("webs");
+    setPDescription("");
+    setPImagesList([]);
+    setManualImageUrl("");
+    setUploadError("");
+    setPTags([]);
+    setPTechs([]);
+    setPGithub("");
+    setPDemo("");
+    setPContact("");
+    setPFigma("");
+    setPBehance("");
+    setPContributors("");
+    setPStartDate("");
+    setPReleaseDate("");
+  };
+
+  const startEditProject = (project: any) => {
+    setEditingProject(project);
+    setPTitle(project.title || "");
+    setPCategory(project.category || "webs");
+    setPDescription(project.description || "");
+    
+    setPImagesList(project.images || []);
+    setManualImageUrl("");
+    setUploadError("");
+    
+    setPTags(project.tags || []);
+    setPTechs(project.techs || []);
+
+    const githubLink = (project.links || []).find((l: any) => l.icon === "github")?.href || "";
+    const demoLink = (project.links || []).find((l: any) => l.icon === "link")?.href || "";
+    const contactLink = (project.links || []).find((l: any) => l.icon === "whatsapp")?.href || "";
+    const figmaLink = (project.links || []).find((l: any) => l.icon === "figma")?.href || "";
+    const behanceLink = (project.links || []).find((l: any) => l.icon === "behance")?.href || "";
+    setPGithub(githubLink);
+    setPDemo(demoLink);
+    setPContact(contactLink);
+    setPFigma(figmaLink);
+    setPBehance(behanceLink);
+
+    setPContributors((project.contributors || []).join(", "));
+    setPStartDate(project.startDate ? new Date(project.startDate).toISOString().split("T")[0] : "");
+    setPReleaseDate(project.releaseDate ? new Date(project.releaseDate).toISOString().split("T")[0] : "");
+    setActiveView("edit");
+  };
+
+  const handleToggleTag = (tagKey: string) => {
+    setPTags(prev => 
+      prev.includes(tagKey) 
+        ? prev.filter(t => t !== tagKey) 
+        : [...prev, tagKey]
+    );
+  };
+
+  const handleToggleTech = (techKey: string) => {
+    setPTechs(prev => 
+      prev.includes(techKey) 
+        ? prev.filter(t => t !== techKey) 
+        : [...prev, techKey]
+    );
+  };
+
+  useEffect(() => {
+    fetchAllProjects();
+  }, []);
+
+  useEffect(() => {
+    const fetchCommits = async () => {
+      try {
+        const res = await fetch("/api/commits");
+        if (res.ok) {
+          const data = await res.json();
+          setCommitsList(data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch commits from server:", e);
+      }
+    };
+    fetchCommits();
+  }, []);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch("/api/auth/session");
+        const data = await res.json();
+        setIsAdmin(data.authenticated);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    checkSession();
+  }, []);
 
   useEffect(() => {
     if (blogs.length === 0) return;
@@ -81,6 +351,76 @@ export default function MainContent({
     return () => clearInterval(interval);
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      setIsAdmin(false);
+    } catch (e) {
+      console.error("Logout failed", e);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    setIsSubmittingLogin(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        setIsAdmin(true);
+        setShowLoginModal(false);
+        setPassword("");
+      } else {
+        const data = await res.json();
+        setLoginError(data.message || "Invalid password");
+      }
+    } catch (e) {
+      console.error(e);
+      setLoginError("Failed to login");
+    } finally {
+      setIsSubmittingLogin(false);
+    }
+  };
+
+  const handleUpdateStatus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatusError("");
+    setIsSubmittingStatus(true);
+    try {
+      const statusRes = await fetch("/api/config/STATUS", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value: selectedStatus }),
+      });
+
+      const noteRes = await fetch("/api/config/STATUS_NOTE", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value: statusNote }),
+      });
+
+      if (statusRes.ok && noteRes.ok) {
+        setCurrentConfig((prev) => ({
+          ...prev,
+          STATUS: selectedStatus,
+          STATUS_NOTE: statusNote,
+        }));
+        setShowEditModal(false);
+      } else {
+        setStatusError("Failed to update status");
+      }
+    } catch (e) {
+      console.error(e);
+      setStatusError("Failed to connect to API");
+    } finally {
+      setIsSubmittingStatus(false);
+    }
+  };
+
   return (
     <>
       {/* Header */}
@@ -90,7 +430,21 @@ export default function MainContent({
           <span>Dashboard</span>
         </h1>
 
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2.5">
+          <button
+            onClick={() => {
+              if (isAdmin) {
+                handleLogout();
+              } else {
+                setShowLoginModal(true);
+              }
+            }}
+            className="cursor-pointer text-gray-400 hover:text-white transition-colors duration-200 flex items-center p-1"
+            title={isAdmin ? "Logout Admin" : "Login Admin"}
+          >
+            {isAdmin ? <FaLockOpen className="text-lg text-green-400" /> : <FaLock className="text-lg" />}
+          </button>
+
           <button
             onClick={() => window.location.reload()}
             className="cursor-pointer"
@@ -158,16 +512,34 @@ export default function MainContent({
             <motion.div
               variants={item}
               whileHover={{ scale: 1.03 }}
-              className="relative bg-neutral-800 p-4 rounded-xl overflow-hidden cursor-pointer"
+              onClick={() => {
+                if (isAdmin) {
+                  setActiveView("list");
+                  setShowProjectsModal(true);
+                }
+              }}
+              className={cn(
+                "relative bg-neutral-800 p-4 rounded-xl overflow-hidden",
+                isAdmin ? "cursor-pointer border border-dashed border-blue-500/40 hover:bg-neutral-700/80" : "cursor-default"
+              )}
             >
               <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-cyan-500/10" />
 
               <div className="z-10 relative">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-gray-400 text-xs">Projects</h2>
+                  <div className="flex items-center gap-1.5">
+                    <h2 className="text-gray-400 text-xs font-semibold">Projects</h2>
+                    {isAdmin && (
+                      <span className="text-[9px] text-blue-400 bg-blue-500/10 px-1 py-0.2 rounded font-mono">
+                        Manage
+                      </span>
+                    )}
+                  </div>
                   <FaCode className="text-blue-400 text-sm" />
                 </div>
-                <p className="mt-1 font-bold text-white text-xl"><Counter value={config.PROJECTS_COUNT ?? 0} /></p>
+                <p className="mt-1 font-bold text-white text-xl">
+                  <Counter value={projectsList.length || config.PROJECTS_COUNT || 0} />
+                </p>
               </div>
             </motion.div>
 
@@ -177,31 +549,48 @@ export default function MainContent({
           <motion.div
             variants={item}
             whileHover={{ scale: 1.02 }}
-            className="flex justify-between items-center bg-neutral-800 p-4 rounded-xl"
+            onClick={() => {
+              if (isAdmin) {
+                setSelectedStatus(currentConfig.STATUS);
+                setStatusNote(currentConfig.STATUS_NOTE || "");
+                setShowEditModal(true);
+              }
+            }}
+            className={cn(
+              "flex justify-between items-center bg-neutral-800 p-4 rounded-xl transition",
+              isAdmin && "hover:bg-neutral-700/80 cursor-pointer border border-dashed border-violet-500/40"
+            )}
           >
-            <div>
-              <h2 className="text-gray-400 text-xs">Status</h2>
+            <div className="grow">
+              <div className="flex items-center gap-2">
+                <h2 className="text-gray-400 text-xs font-semibold">Status</h2>
+                {isAdmin && (
+                  <span className="text-[10px] text-violet-400 bg-violet-500/10 px-1.5 py-0.5 rounded font-mono flex items-center gap-1">
+                    <FaEdit size={10} /> Edit Mode
+                  </span>
+                )}
+              </div>
 
               <p
                 className={cn(
-                  "font-medium",
-                  config?.STATUS === "AVAILABLE"
+                  "font-medium mt-1 text-sm sm:text-base",
+                  currentConfig?.STATUS === "AVAILABLE"
                     ? "text-green-400"
-                    : config?.STATUS === "NOT_AVAILABLE"
+                    : currentConfig?.STATUS === "NOT_AVAILABLE"
                       ? "text-red-400"
                       : "text-violet-500"
                 )}
               >
-                {config.STATUS_NOTE ?? "Doing Something..."}
+                {currentConfig.STATUS_NOTE ?? "Doing Something..."}
               </p>
             </div>
 
             <div
               className={cn(
                 "flex items-center gap-2",
-                config?.STATUS === "AVAILABLE"
+                currentConfig?.STATUS === "AVAILABLE"
                   ? "text-green-400"
-                  : config?.STATUS === "NOT_AVAILABLE"
+                  : currentConfig?.STATUS === "NOT_AVAILABLE"
                     ? "text-red-400"
                     : "text-violet-500"
               )}
@@ -209,9 +598,9 @@ export default function MainContent({
               <span
                 className={cn(
                   "rounded-full w-2 h-2 animate-pulse",
-                  config?.STATUS === "AVAILABLE"
+                  currentConfig?.STATUS === "AVAILABLE"
                     ? "bg-green-400"
-                    : config?.STATUS === "NOT_AVAILABLE"
+                    : currentConfig?.STATUS === "NOT_AVAILABLE"
                       ? "bg-red-400"
                       : "bg-violet-500"
                 )}
@@ -374,7 +763,7 @@ export default function MainContent({
             }}
             className="space-y-3 bg-neutral-800 p-4 rounded-xl"
           >
-            {commits.map((commit, i) => (
+            {commitsList.map((commit, i) => (
               <motion.div
                 key={i}
                 variants={{
@@ -406,6 +795,579 @@ export default function MainContent({
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Login Modal */}
+      <Modal
+        isOpen={showLoginModal}
+        onClose={() => {
+          setShowLoginModal(false);
+          setPassword("");
+          setLoginError("");
+        }}
+        title={
+          <>
+            <FaLock className="text-violet-500" />
+            <span>Admin Authentication</span>
+          </>
+        }
+      >
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">
+              Enter Admin Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all placeholder-gray-600 text-sm"
+            />
+          </div>
+
+          {loginError && (
+            <p className="text-red-500 text-xs font-medium bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+              {loginError}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmittingLogin}
+            className="w-full relative bg-linear-to-r from-pink-500 to-violet-500 text-white font-medium py-2 rounded-lg hover:opacity-90 active:scale-98 transition disabled:opacity-50 text-sm flex justify-center items-center cursor-pointer font-bold"
+          >
+            {isSubmittingLogin ? (
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              "Login"
+            )}
+          </button>
+        </form>
+      </Modal>
+
+      {/* Edit Status Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setStatusError("");
+        }}
+        title={
+          <>
+            <FaEdit className="text-pink-500" />
+            <span>Update My Status</span>
+          </>
+        }
+      >
+        <form onSubmit={handleUpdateStatus} className="space-y-4">
+          <div>
+            <label className="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">
+              Select Status
+            </label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all text-sm cursor-pointer"
+            >
+              <option value="AVAILABLE">AVAILABLE (Green)</option>
+              <option value="NOT_AVAILABLE">NOT AVAILABLE (Red)</option>
+              <option value="AVAILABLE_FOR_WORK">AVAILABLE FOR WORK (Purple)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wider">
+              Status Note
+            </label>
+            <textarea
+              value={statusNote}
+              onChange={(e) => setStatusNote(e.target.value)}
+              placeholder="Enter status note..."
+              required
+              rows={3}
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all text-sm placeholder-gray-600 resize-none"
+            />
+          </div>
+
+          {statusError && (
+            <p className="text-red-500 text-xs font-medium bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+              {statusError}
+            </p>
+          )}
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowEditModal(false)}
+              className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={isSubmittingStatus}
+              className="flex-1 relative bg-linear-to-r from-pink-500 to-violet-500 text-white font-medium py-2 rounded-lg hover:opacity-90 active:scale-98 transition disabled:opacity-50 text-sm flex justify-center items-center cursor-pointer font-bold"
+            >
+              {isSubmittingStatus ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                "Save Changes"
+              )}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Projects Management Modal */}
+      <Modal
+        isOpen={showProjectsModal}
+        onClose={() => {
+          setShowProjectsModal(false);
+          setEditingProject(null);
+          resetProjectForm();
+        }}
+        title={
+          <>
+            <FaCode className="text-blue-500" />
+            <span>{activeView === "list" ? "Manage Projects" : activeView === "edit" ? "Edit Project" : "Add Project"}</span>
+          </>
+        }
+        glowClass="bg-linear-to-r from-blue-500 via-cyan-500 to-teal-500"
+      >
+        {/* Projects List View */}
+        {activeView === "list" && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="text-xs font-semibold text-gray-400">Total: {projectsList.length} projects</h4>
+              <button
+                onClick={() => {
+                  resetProjectForm();
+                  setActiveView("add");
+                }}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer"
+              >
+                <FaPlus size={10} /> Add New
+              </button>
+            </div>
+
+            {isLoadingProjects ? (
+              <div className="flex justify-center py-10">
+                <FaSpinner className="animate-spin text-blue-500 text-xl" />
+              </div>
+            ) : projectsList.length === 0 ? (
+              <div className="text-center py-10 text-gray-500 text-sm">
+                No projects found.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {projectsList.map((project) => (
+                  <div
+                    key={project.id}
+                    className="flex justify-between items-center bg-neutral-950 p-3 rounded-lg border border-neutral-800/60 hover:border-neutral-700 transition"
+                  >
+                    <div className="truncate pr-2 text-left">
+                      <p className="text-sm font-medium text-white truncate">{project.title}</p>
+                      <span className="text-[9px] text-gray-400 uppercase tracking-wider bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800/80">
+                        {project.category}
+                      </span>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => startEditProject(project)}
+                        className="p-1.5 bg-neutral-800 hover:bg-neutral-700 text-gray-300 rounded transition cursor-pointer"
+                        title="Edit Project"
+                      >
+                        <FaEdit size={12} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProject(project.id)}
+                        className="p-1.5 bg-red-950/30 hover:bg-red-900/40 text-red-400 rounded transition cursor-pointer"
+                        title="Delete Project"
+                      >
+                        <FaTrash size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Add / Edit Form View */}
+        {(activeView === "add" || activeView === "edit") && (
+          <form onSubmit={handleSaveProject} className="space-y-4 text-left">
+            {/* General Info Card */}
+            <div className="border border-neutral-800/80 rounded-xl p-4 bg-neutral-950/40 space-y-4">
+              <span className="block text-gray-400 text-[11px] font-bold uppercase tracking-wider border-b border-neutral-800/50 pb-1.5">
+                General Information
+              </span>
+
+              <div>
+                <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                  Project Title *
+                </label>
+                <input
+                  type="text"
+                  value={pTitle}
+                  onChange={(e) => setPTitle(e.target.value)}
+                  required
+                  placeholder="E.g., Simakad ICC Pekanbaru"
+                  className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                    Category
+                  </label>
+                  <select
+                    value={pCategory}
+                    onChange={(e) => setPCategory(e.target.value)}
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm cursor-pointer"
+                  >
+                    <option value="webs">Web Applications</option>
+                    <option value="androidApps">Android Applications</option>
+                    <option value="games">Game Developments</option>
+                    <option value="desktopApps">Desktop Applications</option>
+                    <option value="iot">IoT & Hardware</option>
+                    <option value="uiux">UI/UX Designs</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                    Contributors
+                  </label>
+                  <input
+                    type="text"
+                    value={pContributors}
+                    onChange={(e) => setPContributors(e.target.value)}
+                    placeholder="Comma-separated names"
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={pStartDate}
+                    onChange={(e) => setPStartDate(e.target.value)}
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                    Release Date (Optional)
+                  </label>
+                  <input
+                    type="date"
+                    value={pReleaseDate}
+                    onChange={(e) => setPReleaseDate(e.target.value)}
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Description Area */}
+            <div className="border border-neutral-800/80 rounded-xl p-4 bg-neutral-950/40 space-y-2">
+              <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                Description (Markdown Supported) *
+              </label>
+              <textarea
+                value={pDescription}
+                onChange={(e) => setPDescription(e.target.value)}
+                required
+                rows={5}
+                placeholder="Describe the project... Support Markdown list, headers, etc."
+                className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm placeholder-gray-650 resize-y"
+              />
+            </div>
+
+            {/* Premium Project Images Uploader */}
+            <div className="border border-neutral-800/80 rounded-xl p-4 bg-neutral-950/40 space-y-3">
+              <span className="block text-gray-400 text-[11px] font-bold uppercase tracking-wider border-b border-neutral-800/50 pb-1.5">
+                Project Images
+              </span>
+              
+              {/* List of current images */}
+              {pImagesList.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {pImagesList.map((img, idx) => (
+                    <div key={idx} className="relative rounded-lg overflow-hidden group aspect-video bg-neutral-900 border border-neutral-850 shadow-md">
+                      <Image
+                        src={img.src}
+                        alt="Project screenshot"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 200px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setPImagesList(prev => prev.filter((_, i) => i !== idx).map((item, index) => ({ ...item, no: index + 1 })))}
+                        className="absolute top-1.5 right-1.5 p-1 bg-red-600/90 hover:bg-red-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-lg"
+                        title="Delete image"
+                      >
+                        <IoMdClose size={12} />
+                      </button>
+                      <div className="absolute bottom-1.5 left-1.5 bg-black/70 px-1.5 py-0.5 rounded text-[8px] text-gray-300 font-mono">
+                        #{img.no}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Upload controls */}
+              <div className="flex flex-col gap-2">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const files = e.target.files;
+                    if (!files || files.length === 0) return;
+                    setIsUploading(true);
+                    setUploadError("");
+                    try {
+                      const uploaded = [...pImagesList];
+                      for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+                          method: "POST",
+                          body: file,
+                        });
+                        if (!res.ok) {
+                          const errData = await res.json();
+                          throw new Error(errData.message || "Failed to upload image");
+                        }
+                        const data = await res.json();
+                        uploaded.push({
+                          no: uploaded.length + 1,
+                          src: data.url,
+                        });
+                      }
+                      setPImagesList(uploaded);
+                    } catch (err: any) {
+                      console.error(err);
+                      setUploadError(err.message || "Error uploading file");
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  }}
+                  disabled={isUploading}
+                  className="hidden"
+                  id="image-upload-input"
+                />
+                <label
+                  htmlFor="image-upload-input"
+                  className={cn(
+                    "flex flex-col items-center justify-center border-2 border-dashed border-neutral-800 hover:border-neutral-700 bg-neutral-950/60 rounded-xl p-6 text-center cursor-pointer transition",
+                    isUploading && "opacity-50 pointer-events-none"
+                  )}
+                >
+                  {isUploading ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <FaSpinner className="animate-spin text-blue-500 text-lg" />
+                      <span className="text-xs text-gray-400 font-medium">Uploading images...</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1.5">
+                      <FaPlus className="text-gray-500 text-sm" />
+                      <span className="text-xs text-gray-300 font-semibold">Click to upload images</span>
+                      <span className="text-[9px] text-gray-500">Supports PNG, JPG, WebP</span>
+                    </div>
+                  )}
+                </label>
+              </div>
+
+              {/* Manual URL input fallback */}
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  placeholder="Or paste image URL..."
+                  value={manualImageUrl}
+                  onChange={(e) => setManualImageUrl(e.target.value)}
+                  className="flex-1 bg-neutral-950 border border-neutral-850 rounded-lg px-2.5 py-1.5 text-white text-xs placeholder-gray-600 focus:outline-hidden focus:border-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!manualImageUrl.trim()) return;
+                    setPImagesList(prev => [
+                      ...prev,
+                      { no: prev.length + 1, src: manualImageUrl.trim() }
+                    ]);
+                    setManualImageUrl("");
+                  }}
+                  className="bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-gray-200 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shrink-0 transition"
+                >
+                  Add URL
+                </button>
+              </div>
+
+              {uploadError && (
+                <p className="text-red-500 text-[10px] mt-1 font-medium">{uploadError}</p>
+              )}
+            </div>
+
+            {/* Chip Selector for Tags */}
+            <div className="border border-neutral-800/80 rounded-xl p-4 bg-neutral-950/40 space-y-3">
+              <span className="block text-gray-400 text-[11px] font-bold uppercase tracking-wider border-b border-neutral-800/50 pb-1.5">
+                Project Tags
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {availableTags.map((tag) => {
+                  const isSelected = pTags.includes(tag.key);
+                  return (
+                    <button
+                      key={tag.key}
+                      type="button"
+                      onClick={() => handleToggleTag(tag.key)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs border transition cursor-pointer font-semibold",
+                        isSelected
+                          ? "bg-blue-600/20 border-blue-500 text-blue-300 shadow-sm"
+                          : "bg-neutral-900/40 border-neutral-800/60 text-gray-400 hover:border-neutral-700"
+                      )}
+                    >
+                      {tag.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Chip Selector for Techs */}
+            <div className="border border-neutral-800/80 rounded-xl p-4 bg-neutral-950/40 space-y-3">
+              <span className="block text-gray-400 text-[11px] font-bold uppercase tracking-wider border-b border-neutral-800/50 pb-1.5">
+                Tech Stacks
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {availableTechs.map((tech) => {
+                  const isSelected = pTechs.includes(tech.key);
+                  return (
+                    <button
+                      key={tech.key}
+                      type="button"
+                      onClick={() => handleToggleTech(tech.key)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs border transition cursor-pointer font-semibold",
+                        isSelected
+                          ? "bg-cyan-600/20 border-cyan-500 text-cyan-300 shadow-sm"
+                          : "bg-neutral-900/40 border-neutral-800/60 text-gray-400 hover:border-neutral-700"
+                      )}
+                    >
+                      {tech.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Project Links Section */}
+            <div className="border border-neutral-800/80 rounded-xl p-4 bg-neutral-950/40 space-y-3">
+              <span className="block text-gray-400 text-[11px] font-bold uppercase tracking-wider border-b border-neutral-800/50 pb-1.5">
+                Project Links
+              </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 font-semibold block">GitHub URL</label>
+                  <input
+                    type="url"
+                    value={pGithub}
+                    onChange={(e) => setPGithub(e.target.value)}
+                    placeholder="https://github.com/..."
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-2.5 py-1.5 text-white text-xs focus:outline-hidden focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 font-semibold block">Live Demo URL</label>
+                  <input
+                    type="url"
+                    value={pDemo}
+                    onChange={(e) => setPDemo(e.target.value)}
+                    placeholder="https://..."
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-2.5 py-1.5 text-white text-xs focus:outline-hidden focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 font-semibold block">WhatsApp / Contact Link</label>
+                  <input
+                    type="url"
+                    value={pContact}
+                    onChange={(e) => setPContact(e.target.value)}
+                    placeholder="https://wa.me/..."
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-2.5 py-1.5 text-white text-xs focus:outline-hidden focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-gray-500 font-semibold block">Figma Link</label>
+                  <input
+                    type="url"
+                    value={pFigma}
+                    onChange={(e) => setPFigma(e.target.value)}
+                    placeholder="https://figma.com/file/..."
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-2.5 py-1.5 text-white text-xs focus:outline-hidden focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="text-[10px] text-gray-500 font-semibold block">Behance Link</label>
+                  <input
+                    type="url"
+                    value={pBehance}
+                    onChange={(e) => setPBehance(e.target.value)}
+                    placeholder="https://behance.net/gallery/..."
+                    className="w-full bg-neutral-950 border border-neutral-850 rounded-lg px-2.5 py-1.5 text-white text-xs focus:outline-hidden focus:border-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {projectError && (
+              <p className="text-red-500 text-xs font-medium bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
+                {projectError}
+              </p>
+            )}
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView("list");
+                  setEditingProject(null);
+                  resetProjectForm();
+                }}
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white font-semibold py-2.5 rounded-lg transition text-sm cursor-pointer"
+              >
+                Back to List
+              </button>
+
+              <button
+                type="submit"
+                disabled={isSavingProject}
+                className="flex-1 relative bg-linear-to-r from-blue-600 to-cyan-600 text-white font-semibold py-2.5 rounded-lg hover:opacity-90 active:scale-98 transition disabled:opacity-50 text-sm flex justify-center items-center cursor-pointer"
+              >
+                {isSavingProject ? (
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  "Save Project"
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </>
   );
 }

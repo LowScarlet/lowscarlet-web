@@ -30,6 +30,7 @@ export const projects = pgTable("projects", {
   id: uuid().defaultRandom().primaryKey(),
 
   title: text().notNull(),
+  category: text().notNull().default("webs"),
   description: text().notNull(),
 
   images: jsonb().$type<{

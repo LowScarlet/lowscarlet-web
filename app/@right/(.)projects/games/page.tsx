@@ -32,7 +32,7 @@ export default function RightPanel() {
 
       {/* Content */}
       <div className="space-y-10 px-6 py-2 overflow-y-auto text-gray-400 grow">
-        <Projects />
+        <Projects category="games" />
       </div>
     </>
   );

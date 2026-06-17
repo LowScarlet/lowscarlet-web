@@ -13,7 +13,7 @@ export default function RightPanel() {
       <div className="flex justify-between items-center p-6">
         <h1 className="flex items-center space-x-2">
           <FaRegFolder />
-          <span>Android Applications</span>
+          <span>UI/UX Designs</span>
         </h1>
 
         <div className="flex space-x-2">
@@ -32,7 +32,7 @@ export default function RightPanel() {
 
       {/* Content */}
       <div className="space-y-10 px-6 py-2 overflow-y-auto text-gray-400 grow">
-        <Projects category="androidApps" />
+        <Projects category="uiux" />
       </div>
     </>
   );

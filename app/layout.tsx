@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ensureConfigs } from "@/db/queries/config";
+import { seedProjects } from "@/db/queries/seed";
 import MainLayout from "@/components/layout/MainLayout";
 
 export const metadata: Metadata = {
@@ -35,6 +36,7 @@ export default async function RootLayout({
   right: React.ReactNode;
 }) {
   await ensureConfigs();
+  await seedProjects();
 
   return (
     <MainLayout>
