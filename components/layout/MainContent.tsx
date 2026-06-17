@@ -18,14 +18,6 @@ import { useEffect, useState } from "react";
 import { Counter } from "../utils/Counter";
 import { AppConfigMap } from "@/db/queries/config";
 
-const social_media = [
-  { href: 'https://github.com/LowScarlet', icon: <FiGithub className='text-2xl' /> },
-  { href: 'https://www.instagram.com/lowscarl3t', icon: <FiInstagram className='text-2xl' /> },
-  { href: 'https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221', icon: <BiLogoLinkedin className='text-2xl' /> },
-  { href: 'mailto:tegarmaulanafahreza.email@gmail.com', icon: <FiMail className='text-2xl' /> },
-  { href: '/resume_ats.pdf', icon: <FaRegFilePdf className='text-2xl' /> },
-];
-
 const projects = [
   { href: "/projects/webs", title: "Web Applications" },
   { href: "/projects/androidApps", title: "Android Applications" },
@@ -84,6 +76,14 @@ export default function MainContent() {
 
     fetchConfig();
   }, []);
+
+  const social_media = [
+    { href: config?.SOCIAL_GITHUB || 'https://github.com/LowScarlet', icon: <FiGithub className='text-2xl' /> },
+    { href: config?.SOCIAL_INSTAGRAM || 'https://www.instagram.com/lowscarl3t', icon: <FiInstagram className='text-2xl' /> },
+    { href: config?.SOCIAL_LINKEDIN || 'https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221', icon: <BiLogoLinkedin className='text-2xl' /> },
+    { href: config?.SOCIAL_EMAIL ? (config.SOCIAL_EMAIL.startsWith('mailto:') ? config.SOCIAL_EMAIL : 'mailto:' + config.SOCIAL_EMAIL) : 'mailto:tegarmaulanafahreza.email@gmail.com', icon: <FiMail className='text-2xl' /> },
+    { href: config?.CV_ATS_URL || '/resume_ats.pdf', icon: <FaRegFilePdf className='text-2xl' /> },
+  ];
 
   return (
     <motion.div

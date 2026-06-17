@@ -24,6 +24,30 @@ export const defaultConfigs = [
     id: "COMMENTS_COUNT",
     value: 0,
   },
+  {
+    id: "CV_ATS_URL",
+    value: "/resume_ats.pdf",
+  },
+  {
+    id: "CV_CREATIVE_URL",
+    value: "/cv-creative.pdf",
+  },
+  {
+    id: "SOCIAL_GITHUB",
+    value: "https://github.com/LowScarlet",
+  },
+  {
+    id: "SOCIAL_INSTAGRAM",
+    value: "https://www.instagram.com/lowscarl3t",
+  },
+  {
+    id: "SOCIAL_LINKEDIN",
+    value: "https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221",
+  },
+  {
+    id: "SOCIAL_EMAIL",
+    value: "tegarmaulanafahreza.email@gmail.com",
+  },
 ] as const;
 
 type DefaultConfigs = typeof defaultConfigs;
@@ -100,6 +124,12 @@ export async function getAllConfigs(): Promise<AppConfigMap> {
     VISITORS_COUNT: Number(mapped.VISITORS_COUNT ?? 0),
     PROJECTS_COUNT: Number(mapped.PROJECTS_COUNT ?? 0),
     COMMENTS_COUNT: Number(mapped.COMMENTS_COUNT ?? 0),
+    CV_ATS_URL: String(mapped.CV_ATS_URL ?? "/resume_ats.pdf"),
+    CV_CREATIVE_URL: String(mapped.CV_CREATIVE_URL ?? "/cv-creative.pdf"),
+    SOCIAL_GITHUB: String(mapped.SOCIAL_GITHUB ?? "https://github.com/LowScarlet"),
+    SOCIAL_INSTAGRAM: String(mapped.SOCIAL_INSTAGRAM ?? "https://www.instagram.com/lowscarl3t"),
+    SOCIAL_LINKEDIN: String(mapped.SOCIAL_LINKEDIN ?? "https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221"),
+    SOCIAL_EMAIL: String(mapped.SOCIAL_EMAIL ?? "tegarmaulanafahreza.email@gmail.com"),
   };
 }
 

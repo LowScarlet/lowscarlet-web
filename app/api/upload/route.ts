@@ -28,11 +28,20 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     const blob = await put(filename, request.body, {
       access: 'public',
+      addRandomSuffix: true,
     });
 
     return NextResponse.json(blob);
   } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json({ message: (error as Error).message }, { status: 500 });
+    const errMsg = (error as Error).message || "";
+    
+    if (errMsg.includes("private store") || errMsg.includes("private access")) {
+      return NextResponse.json({ 
+        message: "Vercel Blob Store Anda dikonfigurasi sebagai 'Private'. Harap ubah Access Level menjadi 'Public' di Vercel Dashboard (Storage > Blob > Settings) agar gambar project dapat diakses oleh pengunjung portfolio Anda." 
+      }, { status: 400 });
+    }
+
+    return NextResponse.json({ message: errMsg }, { status: 500 });
   }
 }
