@@ -1,9 +1,12 @@
-'use client'
-
 import Link from "next/link";
 import Projects from "../webs/components/Projects";
 import { IoMdClose } from "react-icons/io";
 import { FaRegFolder } from "react-icons/fa";
+
+export const metadata = {
+  title: "Internet of Things (IoT) Projects - LowScarlet",
+  description: "View hardware integrations, smart devices, and IoT projects engineered by Tegar Maulana Fahreza.",
+};
 
 export default function ProjectsPage() {
   return (

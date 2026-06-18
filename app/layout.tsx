@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ensureConfigs } from "@/db/queries/config";
 import { seedProjects } from "@/db/queries/seed";
@@ -21,9 +21,12 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary',
   },
-  colorScheme: "dark",
   creator: "Tegar Maulana Fahreza",
   publisher: "Vercel"
+}
+
+export const viewport: Viewport = {
+  colorScheme: "dark",
 }
 
 export default async function RootLayout({
@@ -38,8 +41,37 @@ export default async function RootLayout({
   await ensureConfigs();
   await seedProjects();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "mainEntity": {
+      "@type": "Person",
+      "name": "Tegar Maulana Fahreza",
+      "alternateName": "LowScarlet",
+      "description": "Hi 👋, I am Tegar Maulana Fahreza, a web developer from Indonesia.",
+      "jobTitle": "Web Developer",
+      "url": "https://lowscarlet.my.id",
+      "sameAs": [
+        "https://github.com/lowscarlet"
+      ],
+      "knowsAbout": [
+        "Web Development",
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Next.js",
+        "Internet of Things (IoT)",
+        "Game Development"
+      ]
+    }
+  };
+
   return (
     <MainLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="flex">
         {/* LEFT PANEL */}
         {left}

@@ -1,9 +1,12 @@
-'use client'
-
 import Link from "next/link";
 import Projects from "./components/Projects";
 import { IoMdClose } from "react-icons/io";
 import { FaRegFolder } from "react-icons/fa";
+
+export const metadata = {
+  title: "Web Applications & Projects - LowScarlet",
+  description: "Explore web applications, utilities, and developer projects built by Tegar Maulana Fahreza.",
+};
 
 export default function ProjectsPage() {
   return (

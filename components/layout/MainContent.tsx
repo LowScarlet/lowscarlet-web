@@ -143,6 +143,7 @@ export default function MainContent() {
           {/* LIKE BUTTON */}
           <Link
             href="/social"
+            aria-label="Visitor Social Center"
             scroll={false}
             className="group flex flex-col justify-center items-center rounded-full w-12 h-12 text-pink-500 dark:text-violet-400 cursor-pointer"
           >
