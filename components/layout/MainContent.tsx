@@ -20,11 +20,8 @@ import { AppConfigMap } from "@/db/queries/config";
 
 const projects = [
   { href: "/projects/webs", title: "Web Applications" },
-  { href: "/projects/androidApps", title: "Android Applications" },
   { href: "/projects/games", title: "Game Developments" },
-  { href: "/projects/desktopApps", title: "Desktop Applications" },
   { href: "/projects/iot", title: "IoT & Hardware" },
-  { href: "/projects/uiux", title: "UI/UX Designs" }
 ];
 
 /* ANIMATION */

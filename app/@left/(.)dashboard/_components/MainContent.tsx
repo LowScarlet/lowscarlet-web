@@ -132,6 +132,10 @@ export default function MainContent({
   const [socialSuccess, setSocialSuccess] = useState("");
   const [isSubmittingSocial, setIsSubmittingSocial] = useState(false);
 
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState("");
+  const [previewPdfTitle, setPreviewPdfTitle] = useState("");
+
   const availableTags = [
     { key: "finalProjectThesis", title: "Undergraduate Final Project" },
     { key: "casualWebsite", title: "Casual Website" },
@@ -794,28 +798,36 @@ export default function MainContent({
           <div className="flex gap-2">
             {/* CREATIVE */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="flex-1">
-              <Link
-                href={currentConfig.CV_CREATIVE_URL || "/cv-creative.pdf"}
-                target="_blank"
-                className="block relative bg-linear-to-r from-pink-500 to-violet-500 px-4 py-2 rounded-lg overflow-hidden font-medium text-white text-sm text-center"
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewPdfUrl(currentConfig.CV_CREATIVE_URL || "/cv-creative.pdf");
+                  setPreviewPdfTitle("Creative CV");
+                  setShowPreviewModal(true);
+                }}
+                className="w-full block relative bg-linear-to-r from-pink-500 to-violet-500 px-4 py-2 rounded-lg overflow-hidden font-medium text-white text-sm text-center cursor-pointer"
               >
                 {/* glow pulse */}
                 <span className="absolute inset-0 bg-white/20 opacity-30 blur-lg" />
                 Creative
-              </Link>
+              </button>
             </motion.div>
 
             {/* ATS */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="flex-1">
-              <Link
-                href={currentConfig.CV_ATS_URL || "/resume_ats.pdf"}
-                target="_blank"
-                className="block relative bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded-lg overflow-hidden font-medium text-sm text-center transition"
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewPdfUrl(currentConfig.CV_ATS_URL || "/resume_ats.pdf");
+                  setPreviewPdfTitle("ATS CV");
+                  setShowPreviewModal(true);
+                }}
+                className="w-full block relative bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded-lg overflow-hidden font-medium text-sm text-center transition cursor-pointer"
               >
                 {/* subtle shine */}
                 <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition" />
                 ATS Version
-              </Link>
+              </button>
             </motion.div>
           </div>
         </motion.div>
@@ -1414,7 +1426,7 @@ export default function MainContent({
                 setSocialError("");
                 setSocialSuccess("");
               }}
-              className="bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-gray-400 font-semibold py-2 px-4 rounded-lg hover:text-white active:scale-98 transition text-xs cursor-pointer font-bold"
+              className="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-gray-400 font-semibold py-2 px-4 rounded-lg hover:text-white active:scale-98 transition text-xs cursor-pointer font-bold"
             >
               Cancel
             </button>
@@ -1431,6 +1443,77 @@ export default function MainContent({
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* PDF Preview Modal */}
+      <Modal
+        isOpen={showPreviewModal}
+        onClose={() => {
+          setShowPreviewModal(false);
+          setPreviewPdfUrl("");
+          setPreviewPdfTitle("");
+        }}
+        title={
+          <div className="flex items-center space-x-2">
+            <SiReaddotcv className="text-pink-500 text-lg" />
+            <span className="font-bold text-white text-base">Preview: {previewPdfTitle}</span>
+          </div>
+        }
+      >
+        <div className="space-y-4 flex flex-col h-[70vh]">
+          {previewPdfUrl === "/cv-creative.pdf" ? (
+            <div className="flex-1 flex flex-col justify-center items-center text-center p-6 bg-neutral-950/60 border border-neutral-850 rounded-lg space-y-3">
+              <IoWarningOutline className="text-amber-500 text-3xl animate-pulse" />
+              <h3 className="text-white font-semibold text-sm">File CV Creative Belum Di-upload</h3>
+              <p className="text-gray-400 text-[11px] max-w-xs leading-relaxed">
+                Anda belum mengunggah file CV kustom untuk versi Creative. Silakan gunakan tombol <strong>Edit</strong> (pensil) di menu Curriculum Vitae untuk mengunggah file PDF Anda terlebih dahulu.
+              </p>
+            </div>
+          ) : previewPdfUrl ? (
+            <>
+              <iframe
+                src={`/api/proxy-pdf?url=${encodeURIComponent(previewPdfUrl)}`}
+                className="w-full flex-1 rounded-lg border border-neutral-800 bg-neutral-900"
+                title="PDF Preview"
+              />
+              <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-2.5 rounded-lg text-[10px] leading-relaxed font-medium shrink-0">
+                💡 <strong>Tips IDM:</strong> Jika pratinjau tidak muncul dan langsung mengunduh otomatis, hal ini disebabkan oleh software IDM (Internet Download Manager) Anda yang mencegat file PDF. Anda dapat menonaktifkan penanganan file PDF otomatis di pengaturan integrasi IDM Anda untuk melihat pratinjau langsung.
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex justify-center items-center text-xs text-gray-500">
+              No PDF URL selected
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-2 shrink-0">
+            {previewPdfUrl !== "/cv-creative.pdf" && (
+              <a
+                href={previewPdfUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 bg-linear-to-r from-pink-500 to-violet-500 text-white text-center font-bold py-2 rounded-lg hover:opacity-90 active:scale-98 transition text-xs flex justify-center items-center gap-1.5"
+              >
+                <span>Download PDF</span>
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setShowPreviewModal(false);
+                setPreviewPdfUrl("");
+                setPreviewPdfTitle("");
+              }}
+              className={cn(
+                "bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-gray-400 font-bold py-2 px-5 rounded-lg hover:text-white active:scale-98 transition text-xs cursor-pointer",
+                previewPdfUrl === "/cv-creative.pdf" && "flex-1"
+              )}
+            >
+              Close
+            </button>
+          </div>
+        </div>
       </Modal>
 
       {/* Projects Management Modal */}
