@@ -12,9 +12,16 @@ export const config = pgTable("config", {
 
 export const comments = pgTable("comments", {
   id: uuid().defaultRandom().primaryKey(),
-  name: text().notNull(),
+  name: text(),
   message: text().notNull(),
   ipAddress: text().notNull(),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const likes = pgTable("likes", {
+  id: uuid().defaultRandom().primaryKey(),
+  ipAddress: text().notNull().unique(),
+  name: text(),
   createdAt: timestamp().defaultNow(),
 });
 

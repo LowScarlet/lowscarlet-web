@@ -48,22 +48,31 @@ const { nextJs, expressJs, drizzleOrm } = techs;
 export default function MainContent() {
   const pathname = usePathname();
   const [config, setConfig] = useState<AppConfigMap | null>(null);
+  const [likesCount, setLikesCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchConfig = async () => {
+    const fetchConfigAndLikes = async () => {
       try {
         setLoading(true);
 
-        const res = await fetch("/api/config");
+        const [resConfig, resLikes] = await Promise.all([
+          fetch("/api/config"),
+          fetch("/api/likes"),
+        ]);
 
-        if (!res.ok) {
+        if (!resConfig.ok) {
           throw new Error("Failed to fetch config");
         }
 
-        const data = await res.json();
-        setConfig(data);
+        const dataConfig = await resConfig.json();
+        setConfig(dataConfig);
+
+        if (resLikes.ok) {
+          const dataLikes = await resLikes.json();
+          setLikesCount(dataLikes.totalLikes);
+        }
       } catch {
         setError("Something went wrong");
       } finally {
@@ -71,7 +80,19 @@ export default function MainContent() {
       }
     };
 
-    fetchConfig();
+    fetchConfigAndLikes();
+
+    const handleLikesUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<number>;
+      if (typeof customEvent.detail === 'number') {
+        setLikesCount(customEvent.detail);
+      }
+    };
+
+    window.addEventListener('social-likes-updated', handleLikesUpdate);
+    return () => {
+      window.removeEventListener('social-likes-updated', handleLikesUpdate);
+    };
   }, []);
 
   const social_media = [
@@ -120,13 +141,15 @@ export default function MainContent() {
           </div>
 
           {/* LIKE BUTTON */}
-          <motion.button
+          <Link
+            href="/social"
+            scroll={false}
             className="group flex flex-col justify-center items-center rounded-full w-12 h-12 text-pink-500 dark:text-violet-400 cursor-pointer"
-            initial="rest"
-            animate="rest"
-            whileHover="hover"
           >
             <motion.div
+              initial="rest"
+              animate="rest"
+              whileHover="hover"
               variants={{
                 rest: { x: 0 },
                 hover: {
@@ -139,9 +162,9 @@ export default function MainContent() {
               <GoHeartFill className="hidden group-hover:inline text-2xl" />
             </motion.div>
             <h1 className="font-bold text-xs text-center">
-              {loading || error ? 0 : <Counter value={config?.COMMENTS_COUNT ?? 0} />}
+              {loading || error ? 0 : <Counter value={likesCount} />}
             </h1>
-          </motion.button>
+          </Link>
         </div>
       </motion.div>
 
