@@ -116,7 +116,7 @@ export default function ProjectCard({
             {title}
           </motion.h1>
 
-          <motion.div variants={item} className="flex flex-wrap gap-2">
+          <motion.div variants={item} className="flex flex-wrap gap-2 mt-2">
             {tags.map((tag, i) => (
               <Badge
                 key={i}
