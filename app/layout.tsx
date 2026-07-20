@@ -31,10 +31,12 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({
   children,
+  global,
   left,
   right,
 }: {
   children: React.ReactNode;
+  global: React.ReactNode;
   left: React.ReactNode;
   right: React.ReactNode;
 }) {
@@ -73,6 +75,9 @@ export default async function RootLayout({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="flex">
+        {/* GLOBAL MODAL */}
+        {global}
+
         {/* LEFT PANEL */}
         {left}
 

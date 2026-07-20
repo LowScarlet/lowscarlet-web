@@ -2,7 +2,7 @@
 
 import { CgWebsite } from "react-icons/cg"
 import { PiStudentBold } from "react-icons/pi"
-import { FaAndroid, FaGamepad, FaMobileAlt, FaLaptop, FaMicrochip, FaPalette } from "react-icons/fa"
+import { FaAndroid, FaGamepad, FaMobileAlt, FaLaptop } from "react-icons/fa"
 
 export const project_type = {
   finalProjectThesis: {
@@ -45,14 +45,4 @@ export const project_type = {
     icon: <FaLaptop />,
     link: undefined
   },
-  iotProject: {
-    title: 'IoT & Hardware',
-    icon: <FaMicrochip />,
-    link: undefined
-  },
-  uiuxDesign: {
-    title: 'UI/UX Design',
-    icon: <FaPalette />,
-    link: undefined
-  }
 }

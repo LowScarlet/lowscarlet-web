@@ -9,11 +9,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isOpen = pathname.includes('/dashboard') || pathname.includes('/auth');
-  const isHome = pathname == '/';
+  const isOpen = pathname.includes("/auth");
+  const isHome = pathname === "/";
 
   if (!isOpen && !isHome) {
-    return (undefined)
+    return null;
   }
 
   return (
@@ -27,11 +27,11 @@ export default function RootLayout({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden z-40 fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-80 bg-black/60 backdrop-blur-sm"
           />
 
           {/* Wrapper */}
-          <div className="z-50 lg:static fixed inset-0 flex justify-center items-center lg:items-start">
+          <div className="fixed inset-0 z-90 flex items-center justify-center p-4">
             <motion.div
               key="modal"
               initial={{ opacity: 0, x: 100 }}
@@ -45,14 +45,10 @@ export default function RootLayout({
                 },
               }}
               transition={{
-                x: {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 20,
-                },
-                opacity: { duration: 0.2 },
+                duration: 0.15,
+                ease: "easeIn",
               }}
-              className="lg:top-0 lg:sticky flex flex-col bg-[#090909] shadow-lg lg:shadow-none rounded-2xl lg:rounded-none w-[90%] lg:min-w-lg max-w-md lg:max-w-lg h-[90vh] lg:h-svh"
+              className="flex h-[80vh] w-full max-w-lg flex-col rounded-2xl bg-[#090909] shadow-lg"
             >
               {children}
             </motion.div>

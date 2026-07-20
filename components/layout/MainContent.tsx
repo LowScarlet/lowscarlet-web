@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FaRegFilePdf, FaStar } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 import { GoHeart, GoHeartFill } from "react-icons/go";
 import { TypeAnimation } from "react-type-animation";
 import Badge from "../utils/Badge";
@@ -21,7 +21,6 @@ import { AppConfigMap } from "@/db/queries/config";
 const projects = [
   { href: "/projects/webs", title: "Web Applications" },
   { href: "/projects/games", title: "Game Developments" },
-  { href: "/projects/iot", title: "IoT & Hardware" },
 ];
 
 /* ANIMATION */
@@ -100,7 +99,6 @@ export default function MainContent() {
     { href: config?.SOCIAL_INSTAGRAM || 'https://www.instagram.com/lowscarl3t', icon: <FiInstagram className='text-2xl' /> },
     { href: config?.SOCIAL_LINKEDIN || 'https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221', icon: <BiLogoLinkedin className='text-2xl' /> },
     { href: config?.SOCIAL_EMAIL ? (config.SOCIAL_EMAIL.startsWith('mailto:') ? config.SOCIAL_EMAIL : 'mailto:' + config.SOCIAL_EMAIL) : 'mailto:tegarmaulanafahreza.email@gmail.com', icon: <FiMail className='text-2xl' /> },
-    { href: config?.CV_ATS_URL || '/resume_ats.pdf', icon: <FaRegFilePdf className='text-2xl' /> },
   ];
 
   return (
@@ -177,10 +175,10 @@ export default function MainContent() {
             className="bg-clip-text bg-linear-to-r from-pink-500 to-violet-500 text-transparent text-2xl"
             preRenderFirstString={true}
             sequence={[
-              'websites', 1000,
-              'frontends', 1000,
-              'backends', 1000,
-              'apps', 1000,
+              "websites", 1000,
+              "apps", 1000,
+              "games", 1000,
+              "digital products", 1000,
             ]}
             speed={40}
             repeat={Infinity}

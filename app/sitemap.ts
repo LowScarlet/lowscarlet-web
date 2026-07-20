@@ -11,7 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/social",
     "/projects/webs",
     "/projects/games",
-    "/projects/iot",
   ];
 
   return routes.map((route) => ({

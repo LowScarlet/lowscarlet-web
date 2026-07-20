@@ -16,6 +16,6 @@ export const formatDate = (date: Date) => {
 export function formatNumber(num: number) {
   return new Intl.NumberFormat("en", {
     notation: "compact",
-    maximumFractionDigits: 1,
+    maximumFractionDigits: 2,
   }).format(num);
 }
