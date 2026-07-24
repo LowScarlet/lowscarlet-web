@@ -54,3 +54,10 @@
   animation: marquee-right 40s linear infinite;
   will-change: transform;
 }
+
+/* Hide default OS cursor on desktop pointer devices */
+@media (hover: hover) and (pointer: fine) {
+  html, body, a, button, input, select, textarea, [role="button"], .cursor-pointer {
+    cursor: none !important;
+  }
+}
