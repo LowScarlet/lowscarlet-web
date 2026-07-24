@@ -73,7 +73,7 @@ export default function ProjectForm({
       const contactLink = (project.links || []).find((l: any) => l.icon === "whatsapp")?.href || "";
       const figmaLink = (project.links || []).find((l: any) => l.icon === "figma")?.href || "";
       const behanceLink = (project.links || []).find((l: any) => l.icon === "behance")?.href || "";
-      
+
       setPGithub(githubLink);
       setPDemo(demoLink);
       setPContact(contactLink);
@@ -322,6 +322,7 @@ export default function ProjectForm({
               <div key={idx} className="relative rounded-lg overflow-hidden group aspect-video bg-neutral-900 border border-neutral-855 shadow-md">
                 <Image
                   src={img.src}
+                  placeholder="blur"
                   alt="Project screenshot"
                   fill
                   sizes="(max-width: 768px) 50vw, 200px"

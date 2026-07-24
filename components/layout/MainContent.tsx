@@ -115,8 +115,8 @@ export default function MainContent() {
             <Link href={!(pathname === '/dashboard') ? "/dashboard" : '/'} className="group flex space-x-2 w-fit text-start cursor-pointer">
               <div className="bg-linear-to-r from-pink-500 to-violet-500 p-0.5 rounded-full">
                 <div className="group-hover:opacity-90 rounded-full w-12 h-12 overflow-hidden transition duration-300">
-
                   <Image
+                    placeholder="blur"
                     width={100}
                     height={100}
                     src={"/pp.png"}

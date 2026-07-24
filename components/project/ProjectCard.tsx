@@ -90,6 +90,7 @@ export default function ProjectCard({
           >
             {images.length > 0 && (
               <Image
+                placeholder="blur"
                 src={images[index]}
                 alt="project image"
                 fill
