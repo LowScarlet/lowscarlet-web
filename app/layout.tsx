@@ -82,7 +82,7 @@ export default async function RootLayout({
         {left}
 
         {/* MAIN */}
-        <div className="lg:z-60 flex-1 bg-[#101010] shadow-xl">
+        <div className="lg:z-60 flex-1">
           {children}
         </div>
 

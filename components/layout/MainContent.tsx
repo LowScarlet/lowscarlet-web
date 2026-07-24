@@ -40,6 +40,12 @@ const item = {
 
 const { nextJs, expressJs, drizzleOrm } = techs;
 
+const HINT_TEXTS = [
+  "More about me :3",
+  "Click me!",
+  "Who am I??????",
+];
+
 export default function MainContent() {
   const pathname = usePathname();
   const [config, setConfig] = useState<AppConfigMap | null>(null);
@@ -47,6 +53,13 @@ export default function MainContent() {
   const [categories, setCategories] = useState<string[]>(["webs", "games"]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [doodleText, setDoodleText] = useState("More about me :3");
+
+  useEffect(() => {
+    // Pick a random hint text on mount / refresh
+    const randomText = HINT_TEXTS[Math.floor(Math.random() * HINT_TEXTS.length)];
+    setDoodleText(randomText);
+  }, []);
 
   useEffect(() => {
     const fetchConfigAndLikes = async () => {
@@ -76,7 +89,7 @@ export default function MainContent() {
           const fetchedCategories = dataProjects
             .map((p) => p.category)
             .filter((c): c is string => Boolean(c));
-          
+
           const uniqueCategories = Array.from(
             new Set(["webs", "games", ...fetchedCategories])
           );
@@ -116,10 +129,10 @@ export default function MainContent() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-8 bg-[#101010] px-8 py-10 sm:min-w-lg max-w-md h-full"
+      className="space-y-8 px-8 py-10 sm:min-w-lg max-w-md h-full"
     >
       {/* PROFILE */}
-      <motion.div variants={item}>
+      <motion.div variants={item} className="relative">
         <div className="flex items-center">
           <div className="group grow">
             <Link href={!(pathname === '/dashboard') ? "/dashboard" : '/'} className="group flex space-x-2 w-fit text-start cursor-pointer">
@@ -144,6 +157,45 @@ export default function MainContent() {
                 </p>
               </div>
             </Link>
+          </div>
+
+          {/* CLIPART DOODLE ARROW POINTING TO PROFILE */}
+          <div className="absolute top-12 left-10 z-10 pointer-events-none select-none">
+            <motion.div
+              animate={{ y: [0, -3, 0], x: [0, 2, 0] }}
+              transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+              className="flex items-center gap-1 text-pink-500 dark:text-violet-400 opacity-90 drop-shadow-md"
+            >
+              <svg
+                width="44"
+                height="30"
+                viewBox="0 0 44 30"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="shrink-0"
+              >
+                {/* Curved hand-drawn arrow curve */}
+                <path
+                  d="M 40 26 C 28 28, 16 20, 8 8"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  fill="none"
+                />
+                {/* Arrowhead pointing to the avatar */}
+                <path
+                  d="M 14 5 L 6 7 L 10 16"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              </svg>
+              <span className="text-xs font-bold italic tracking-wider whitespace-nowrap transform -rotate-3 font-mono mt-4">
+                {doodleText}
+              </span>
+            </motion.div>
           </div>
 
           {/* LIKE BUTTON */}
