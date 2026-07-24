@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaGamepad, FaCat, FaFire, FaHeart } from "react-icons/fa";
+import { FaGamepad, FaCat, FaFire } from "react-icons/fa";
 
-// Secret Konami Code sequence: Up Up Down Down Left Right Left Right B A
+// Secret Konami Code sequence: Up Up Down Down Left Right Left Right
 const KONAMI_CODE = [
   "ArrowUp",
   "ArrowUp",
@@ -14,8 +14,6 @@ const KONAMI_CODE = [
   "ArrowRight",
   "ArrowLeft",
   "ArrowRight",
-  "b",
-  "a",
 ];
 
 interface EasterEggNotice {
@@ -24,9 +22,38 @@ interface EasterEggNotice {
   icon: React.ReactNode;
 }
 
+interface DanmakuCat {
+  id: string;
+  topPercent: number;
+  duration: number;
+  text: string;
+  borderColor: string;
+  textColor: string;
+}
+
+const CAT_MESSAGES = [
+  "🐱 Meow! Nyaaa~ 🐾",
+  "🐱 Purrrr... 💖",
+  "🐱 Code Cat reporting for duty! ⚡",
+  "🐱 Meow meow meow! 🎉",
+  "🐱 Catch me if you can! 💨",
+  "🐱 LowScarlet&apos;s loyal cat ✦",
+  "🐱 🐈 🐾 Nya!",
+  "🐱 Bug hunter cat on the loose! 🔍",
+  "🐱 Infinite Danmaku Cats! 🚀",
+];
+
+const CAT_COLORS = [
+  { border: "border-yellow-500/50", text: "text-yellow-300" },
+  { border: "border-pink-500/50", text: "text-pink-300" },
+  { border: "border-purple-500/50", text: "text-purple-300" },
+  { border: "border-cyan-500/50", text: "text-cyan-300" },
+  { border: "border-emerald-500/50", text: "text-emerald-300" },
+];
+
 export default function EasterEggs() {
   const [activeEasterEgg, setActiveEasterEgg] = useState<EasterEggNotice | null>(null);
-  const [showCat, setShowCat] = useState(false);
+  const [cats, setCats] = useState<DanmakuCat[]>([]);
   const [rainbowMode, setRainbowMode] = useState(false);
 
   // 1. Console ASCII Art Easter Egg for curious developers
@@ -93,34 +120,36 @@ export default function EasterEggs() {
         });
       }
 
+      // Danmaku Cat Rain Trigger
       if (typedBuffer.endsWith("cat")) {
         typedBuffer = "";
-        setShowCat(true);
+        
+        // Spawn 3 danmaku cat bullets across random heights & speeds
+        const newCats: DanmakuCat[] = Array.from({ length: 3 }).map(() => {
+          const colorScheme = CAT_COLORS[Math.floor(Math.random() * CAT_COLORS.length)];
+          return {
+            id: `${Date.now()}-${Math.random()}`,
+            topPercent: Math.floor(Math.random() * 75) + 10, // 10% to 85% Y height
+            duration: 5 + Math.random() * 4, // 5s to 9s flight duration
+            text: CAT_MESSAGES[Math.floor(Math.random() * CAT_MESSAGES.length)].replace("&apos;", "'"),
+            borderColor: colorScheme.border,
+            textColor: colorScheme.text,
+          };
+        });
+
+        setCats((prev) => [...prev, ...newCats]);
+
         setActiveEasterEgg({
-          title: "🐱 Secret Pixel Cat Summoned!",
-          message: "A wild friendly cat is strolling through LowScarlet's website!",
+          title: "🐱 Danmaku Cat Rain Unleashed!",
+          message: "Keep typing 'cat' to spawn more and more flying cats! 🐾",
           icon: <FaCat className="text-2xl text-yellow-400" />,
         });
-        setTimeout(() => setShowCat(false), 8000);
       }
     };
 
-    // 3. Listen for Custom Event for Avatar Click Easter Egg
-    const handleAvatarClickEgg = () => {
-      triggerConfetti();
-      setActiveEasterEgg({
-        title: "❤️ Super Supporter Unlocked!",
-        message: "You clicked the avatar 5 times! Thank you for exploring LowScarlet ✨",
-        icon: <FaHeart className="text-2xl text-red-400" />,
-      });
-    };
-
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("easteregg-avatar-burst", handleAvatarClickEgg);
-
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("easteregg-avatar-burst", handleAvatarClickEgg);
     };
   }, []);
 
@@ -188,12 +217,12 @@ export default function EasterEggs() {
     requestAnimationFrame(animate);
   };
 
-  // Auto hide notice toast after 6 seconds
+  // Auto hide notice toast after 3 seconds
   useEffect(() => {
     if (!activeEasterEgg) return;
     const timer = setTimeout(() => {
       setActiveEasterEgg(null);
-    }, 6000);
+    }, 3000);
     return () => clearTimeout(timer);
   }, [activeEasterEgg]);
 
@@ -201,7 +230,7 @@ export default function EasterEggs() {
     <>
       {/* Rainbow Glow Mode outline when Konami Code is triggered */}
       {rainbowMode && (
-        <div className="fixed inset-0 border-4 border-pink-500/70 pointer-events-none z-50 animate-pulse transition-all duration-500 shadow-[inset_0_0_50px_rgba(236,72,153,0.3)]" />
+        <div className="fixed inset-0 border-8 border-pink-500/70 pointer-events-none z-[9999] animate-pulse transition-all duration-500 shadow-[inset_0_0_50px_rgba(236,72,153,0.3)]" />
       )}
 
       {/* Secret Toast Banner Notification */}
@@ -232,19 +261,26 @@ export default function EasterEggs() {
         )}
       </AnimatePresence>
 
-      {/* Pixel Cat Strolling Easter Egg */}
-      {showCat && (
-        <div className="fixed bottom-4 right-0 z-50 pointer-events-none">
-          <motion.div
-            initial={{ x: 150 }}
-            animate={{ x: -window.innerWidth - 150 }}
-            transition={{ duration: 8, ease: "linear" }}
-            className="flex items-center gap-2 bg-black/80 backdrop-blur-md px-4 py-2 rounded-full border border-yellow-500/40 text-xs font-mono text-yellow-300 shadow-xl"
+      {/* Danmaku Bullet Comments Flying Cat Rain */}
+      {cats.map((cat) => (
+        <motion.div
+          key={cat.id}
+          initial={{ x: "100vw" }}
+          animate={{ x: "-120vw" }}
+          transition={{ duration: cat.duration, ease: "linear" }}
+          onAnimationComplete={() => {
+            setCats((prev) => prev.filter((c) => c.id !== cat.id));
+          }}
+          style={{ top: `${cat.topPercent}%` }}
+          className="fixed right-0 z-[9990] pointer-events-none whitespace-nowrap select-none transform-gpu"
+        >
+          <div
+            className={`flex items-center gap-2 bg-black/85 backdrop-blur-md px-4 py-2 rounded-full border ${cat.borderColor} text-xs font-mono ${cat.textColor} shadow-2xl`}
           >
-            <span>🐱 Meow! Strolling through LowScarlet&apos;s code...</span>
-          </motion.div>
-        </div>
-      )}
+            <span>{cat.text}</span>
+          </div>
+        </motion.div>
+      ))}
     </>
   );
 }
