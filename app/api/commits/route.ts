@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
+// Cache route response for 10 minutes (600 seconds) to prevent GitHub API rate limit 403
+export const revalidate = 600;
 
 const staticCommits = [
   {
@@ -25,20 +26,23 @@ const staticCommits = [
 export async function GET() {
   try {
     const token = process.env.GITHUB_PAT;
-    if (!token) {
-      console.warn("GITHUB_PAT env variable not found. Returning static commits fallback.");
-      return NextResponse.json(staticCommits);
-    }
-
     const headers: Record<string, string> = {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': `Bearer ${token}`,
-      'User-Agent': 'lowscarlet-web-app'
+      'User-Agent': 'lowscarlet-web-app',
     };
+
+    if (token) {
+      headers['Authorization'] = token.startsWith('Bearer ') || token.startsWith('token ')
+        ? token
+        : `Bearer ${token}`;
+    }
 
     const res = await fetch(
       'https://api.github.com/repos/LowScarlet/lowscarlet-web/commits?per_page=4',
-      { headers }
+      {
+        headers,
+        next: { revalidate: 600 },
+      }
     );
 
     if (!res.ok) {
@@ -65,4 +69,3 @@ export async function GET() {
     return NextResponse.json(staticCommits);
   }
 }
-

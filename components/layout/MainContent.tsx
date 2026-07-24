@@ -54,6 +54,18 @@ export default function MainContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [doodleText, setDoodleText] = useState("More about me :3");
+  const [avatarClickCount, setAvatarClickCount] = useState(0);
+
+  const handleAvatarClick = (e: React.MouseEvent) => {
+    // If clicked 5 times quickly, trigger Easter Egg
+    const nextCount = avatarClickCount + 1;
+    setAvatarClickCount(nextCount);
+    if (nextCount >= 5) {
+      e.preventDefault();
+      window.dispatchEvent(new Event("easteregg-avatar-burst"));
+      setAvatarClickCount(0);
+    }
+  };
 
   useEffect(() => {
     // Pick a random hint text on mount / refresh
@@ -135,7 +147,7 @@ export default function MainContent() {
       <motion.div variants={item} className="relative">
         <div className="flex items-center">
           <div className="group grow">
-            <Link href={!(pathname === '/dashboard') ? "/dashboard" : '/'} className="group flex space-x-2 w-fit text-start cursor-pointer">
+            <Link onClick={handleAvatarClick} href={!(pathname === '/dashboard') ? "/dashboard" : '/'} className="group flex space-x-2 w-fit text-start cursor-pointer">
               <div className="bg-linear-to-r from-pink-500 to-violet-500 p-0.5 rounded-full">
                 <div className="group-hover:opacity-90 rounded-full w-12 h-12 overflow-hidden transition duration-300">
                   <Image
