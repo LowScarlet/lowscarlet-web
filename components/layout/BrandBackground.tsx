@@ -108,62 +108,101 @@ interface RepellingIconProps {
   mousePos: MousePos | null;
 }
 
+// 2 Solid accent colors: Pink (#ec4899) and Violet (#a855f7)
+const ACCENT_COLORS = [
+  { hex: "#ec4899", shadow: "drop-shadow(0 0 22px rgba(236, 72, 153, 0.95))" },
+  { hex: "#a855f7", shadow: "drop-shadow(0 0 22px rgba(168, 85, 247, 0.95))" },
+];
+
 const RepellingIconItem: React.FC<RepellingIconProps> = ({ item, mousePos }) => {
-  const itemRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const activeColorRef = useRef(ACCENT_COLORS[0]);
+  const isCurrentlyActiveRef = useRef(false);
 
   useEffect(() => {
-    const el = itemRef.current;
-    if (!el) return;
+    let animFrameId: number;
 
-    if (!mousePos) {
-      el.style.transform = "translate(0px, 0px) scale(1)";
-      el.style.opacity = "";
-      el.style.filter = "";
-      el.style.color = "";
-      return;
-    }
+    const checkProximity = () => {
+      const containerEl = containerRef.current;
+      const innerEl = innerRef.current;
+      if (!containerEl || !innerEl) return;
 
-    const rect = el.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+      if (!mousePos) {
+        if (isCurrentlyActiveRef.current) {
+          innerEl.style.transform = "translate3d(0px, 0px, 0px) scale(1)";
+          innerEl.style.filter = "";
+          innerEl.style.color = "";
+          isCurrentlyActiveRef.current = false;
+        }
+        return;
+      }
 
-    const dx = centerX - mousePos.x;
-    const dy = centerY - mousePos.y;
-    const dist = Math.hypot(dx, dy);
+      // Measure untransformed container position to prevent feedback loop jitter
+      const rect = containerEl.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
 
-    // Proximity radius of repulsion effect in pixels
-    const radius = 160;
+      const dx = centerX - mousePos.x;
+      const dy = centerY - mousePos.y;
+      const dist = Math.hypot(dx, dy);
 
-    if (dist < radius && dist > 0) {
-      const factor = 1 - dist / radius;
-      const maxRepel = 50; // Max displacement distance in px
-      const pushX = (dx / dist) * factor * maxRepel;
-      const pushY = (dy / dist) * factor * maxRepel;
-      const scale = 1 + factor * 0.35; // Scale up when mouse is near
+      // Proximity radius of repulsion effect in pixels
+      const radius = 160;
 
-      el.style.transform = `translate(${pushX}px, ${pushY}px) scale(${scale})`;
-      el.style.opacity = "1";
-      el.style.filter = "drop-shadow(0 0 16px rgba(255, 255, 255, 0.6))";
-      el.style.color = "#ffffff";
-    } else {
-      el.style.transform = "translate(0px, 0px) scale(1)";
-      el.style.opacity = "";
-      el.style.filter = "";
-      el.style.color = "";
-    }
+      if (dist < radius && dist > 0) {
+        const factor = 1 - dist / radius;
+        const maxRepel = 50; // Max displacement distance in px
+        const pushX = (dx / dist) * factor * maxRepel;
+        const pushY = (dy / dist) * factor * maxRepel;
+        const scale = 1 + factor * 0.35; // Zoom perbesaran saat mouse mendekat
+
+        // Pick a random color between Pink & Violet when becoming active
+        if (!isCurrentlyActiveRef.current) {
+          activeColorRef.current = ACCENT_COLORS[Math.floor(Math.random() * ACCENT_COLORS.length)];
+          isCurrentlyActiveRef.current = true;
+        }
+
+        innerEl.style.transform = `translate3d(${pushX}px, ${pushY}px, 0px) scale(${scale})`;
+        innerEl.style.color = activeColorRef.current.hex;
+        innerEl.style.filter = activeColorRef.current.shadow;
+      } else {
+        if (isCurrentlyActiveRef.current || innerEl.style.color !== "") {
+          innerEl.style.transform = "translate3d(0px, 0px, 0px) scale(1)";
+          innerEl.style.filter = "";
+          innerEl.style.color = "";
+          isCurrentlyActiveRef.current = false;
+        }
+      }
+
+      // Continuously check proximity on frame loop so moving marquee items automatically reset when scrolling past stationary mouse
+      animFrameId = requestAnimationFrame(checkProximity);
+    };
+
+    checkProximity();
+
+    return () => {
+      cancelAnimationFrame(animFrameId);
+    };
   }, [mousePos]);
 
   return (
-    <div
-      ref={itemRef}
-      className="flex items-center gap-3 text-neutral-400/80 transition-all duration-200 ease-out transform-gpu select-none"
-    >
-      <span className="text-3xl sm:text-4xl lg:text-5xl transition-transform duration-200">
-        {item.icon}
-      </span>
-      <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase opacity-70 transition-opacity duration-200">
-        {item.name}
-      </span>
+    <div ref={containerRef} className="relative overflow-visible shrink-0">
+      <div
+        ref={innerRef}
+        className="flex items-center gap-3 text-neutral-400/80 transform-gpu select-none"
+        style={{
+          transition:
+            "transform 0.25s ease-out, color 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        <span className="text-3xl sm:text-4xl lg:text-5xl transition-transform duration-200">
+          {item.icon}
+        </span>
+        <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase opacity-70">
+          {item.name}
+        </span>
+      </div>
     </div>
   );
 };
@@ -233,8 +272,8 @@ export default function BrandBackground() {
       {/* Radial vignette mask in center */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#101010_85%)] z-10 pointer-events-none" />
 
-      {/* Marquee container with subtle opacity and diagonal rotation */}
-      <div className="absolute inset-0 opacity-[0.14] md:opacity-[0.18] flex flex-col justify-around -rotate-6 scale-125 transform-gpu pointer-events-none">
+      {/* Marquee container with diagonal rotation */}
+      <div className="absolute inset-0 opacity-[0.25] md:opacity-[0.3] flex flex-col justify-around -rotate-6 scale-125 transform-gpu pointer-events-none">
         <MarqueeRow items={row1} direction="left" duration={35} mousePos={mousePos} />
         <MarqueeRow items={row2} direction="right" duration={42} mousePos={mousePos} />
         <MarqueeRow items={row3} direction="left" duration={38} mousePos={mousePos} />
