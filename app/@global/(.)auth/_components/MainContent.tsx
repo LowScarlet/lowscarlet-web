@@ -28,7 +28,7 @@ export default function LoginForm({
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
-        window.location.href = "/dashboard";
+        window.location.href = "/";
       } else {
         const data = await res.json();
         setLoginError(data.message || "Invalid password");
