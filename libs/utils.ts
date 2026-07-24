@@ -19,3 +19,23 @@ export function formatNumber(num: number) {
     maximumFractionDigits: 2,
   }).format(num);
 }
+
+export const categoryTitles: Record<string, string> = {
+  webs: "Web Applications",
+  games: "Game Developments",
+  androidApps: "Android Applications",
+  desktopApps: "Desktop Applications",
+  iot: "IoT & Hardware",
+  uiux: "UI/UX Designs",
+};
+
+export function getCategoryTitle(category: string): string {
+  if (categoryTitles[category]) {
+    return categoryTitles[category];
+  }
+  return category
+    .replace(/([A-Z])/g, " $1")
+    .replace(/[-_]/g, " ")
+    .replace(/^./, (str) => str.toUpperCase())
+    .trim();
+}

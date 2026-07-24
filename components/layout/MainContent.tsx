@@ -10,18 +10,14 @@ import { BiLogoLinkedin } from "react-icons/bi";
 import { techs } from "../utils/Techs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/libs/utils";
+import { cn, getCategoryTitle } from "@/libs/utils";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { AiOutlineLink } from "react-icons/ai";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Counter } from "../utils/Counter";
 import { AppConfigMap } from "@/db/queries/config";
-
-const projects = [
-  { href: "/projects/webs", title: "Web Applications" },
-  { href: "/projects/games", title: "Game Developments" },
-];
+import profilePic from "@/public/pp.png";
 
 /* ANIMATION */
 const container = {
@@ -48,6 +44,7 @@ export default function MainContent() {
   const pathname = usePathname();
   const [config, setConfig] = useState<AppConfigMap | null>(null);
   const [likesCount, setLikesCount] = useState<number>(0);
+  const [categories, setCategories] = useState<string[]>(["webs", "games"]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,9 +53,10 @@ export default function MainContent() {
       try {
         setLoading(true);
 
-        const [resConfig, resLikes] = await Promise.all([
+        const [resConfig, resLikes, resProjects] = await Promise.all([
           fetch("/api/config"),
           fetch("/api/likes"),
+          fetch("/api/projects"),
         ]);
 
         if (!resConfig.ok) {
@@ -71,6 +69,18 @@ export default function MainContent() {
         if (resLikes.ok) {
           const dataLikes = await resLikes.json();
           setLikesCount(dataLikes.totalLikes);
+        }
+
+        if (resProjects.ok) {
+          const dataProjects: { category?: string }[] = await resProjects.json();
+          const fetchedCategories = dataProjects
+            .map((p) => p.category)
+            .filter((c): c is string => Boolean(c));
+          
+          const uniqueCategories = Array.from(
+            new Set(["webs", "games", ...fetchedCategories])
+          );
+          setCategories(uniqueCategories);
         }
       } catch {
         setError("Something went wrong");
@@ -117,11 +127,9 @@ export default function MainContent() {
                 <div className="group-hover:opacity-90 rounded-full w-12 h-12 overflow-hidden transition duration-300">
                   <Image
                     placeholder="blur"
-                    width={100}
-                    height={100}
-                    src={"/pp.png"}
-                    alt={"/pp.png"}
-                    className="object-cover"
+                    src={profilePic}
+                    alt="Tegar Maulana Fahreza"
+                    className="object-cover w-full h-full"
                   />
 
                 </div>
@@ -220,13 +228,15 @@ export default function MainContent() {
         </h1>
 
         <div className="mt-2">
-          {projects.map((itemProject) => {
-            const isActive = pathname === itemProject.href;
+          {categories.map((cat) => {
+            const href = `/projects/${cat}`;
+            const isActive = pathname === href;
+            const title = getCategoryTitle(cat);
 
             return (
-              <motion.div key={itemProject.href} variants={item}>
+              <motion.div key={cat} variants={item}>
                 <Link
-                  href={isActive ? "/" : itemProject.href}
+                  href={isActive ? "/" : href}
                   scroll={false}
                   className={cn(
                     "flex justify-between items-center px-1 py-2 w-full text-lg cursor-pointer",
@@ -235,7 +245,7 @@ export default function MainContent() {
                 >
                   <span className="flex items-center space-x-2">
                     <MdOutlineKeyboardArrowRight className="text-2xl" />
-                    <span>{itemProject.title}</span>
+                    <span>{title}</span>
                   </span>
 
                   <AiOutlineLink className="text-2xl" />
