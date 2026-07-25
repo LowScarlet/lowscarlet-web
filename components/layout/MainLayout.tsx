@@ -3,11 +3,13 @@
 import { Hanken_Grotesk } from "next/font/google";
 import { useEffect } from "react";
 import { IconContext } from "react-icons";
-import BrandBackground from "./BrandBackground";
-import EasterEggs from "../utils/EasterEggs";
-import CustomCursor from "../utils/CustomCursor";
+import dynamic from "next/dynamic";
 
-const hanken_grotesk = Hanken_Grotesk({ subsets: ['latin'] })
+const BrandBackground = dynamic(() => import("./BrandBackground"), { ssr: false });
+const EasterEggs = dynamic(() => import("../utils/EasterEggs"), { ssr: false });
+const CustomCursor = dynamic(() => import("../utils/CustomCursor"), { ssr: false });
+
+const hanken_grotesk = Hanken_Grotesk({ subsets: ['latin'] });
 
 export default function MainLayout({
   children,
