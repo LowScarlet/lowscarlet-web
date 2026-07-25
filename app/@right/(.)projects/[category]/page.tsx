@@ -30,12 +30,13 @@ export default function RightPanel({ params }: PageProps) {
         <div className="flex space-x-2">
           <button
             onClick={() => window.location.reload()}
+            aria-label="Refresh page"
             className="cursor-pointer"
           >
             <LuExpand />
           </button>
 
-          <Link scroll={false} href="/">
+          <Link scroll={false} href="/" aria-label="Close project panel">
             <IoMdClose className="text-2xl" />
           </Link>
         </div>

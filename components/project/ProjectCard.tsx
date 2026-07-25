@@ -313,6 +313,7 @@ export default function ProjectCard({
                 key={i}
                 target="_blank"
                 href={href}
+                aria-label={`Project link ${i + 1} for ${title}`}
                 className="flex justify-center items-center bg-neutral-50 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-900 px-3 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 transition"
               >
                 <Icon className="text-2xl" />

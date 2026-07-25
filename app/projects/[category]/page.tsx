@@ -30,7 +30,7 @@ export default async function DynamicProjectsPage({ params }: PageProps) {
           <FaRegFolder />
           <span>{title}</span>
         </h1>
-        <Link scroll={false} href="/">
+        <Link scroll={false} href="/" aria-label="Close category view">
           <IoMdClose className="text-2xl" />
         </Link>
       </div>

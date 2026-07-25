@@ -34,6 +34,7 @@ export default function DashboardHeader({
             }
           }}
           className="cursor-pointer text-gray-400 hover:text-white transition-colors duration-200 flex items-center p-1"
+          aria-label={isAdmin ? "Logout Admin" : "Login Admin"}
           title={isAdmin ? "Logout Admin" : "Login Admin"}
         >
           {isAdmin ? <FaLockOpen className="text-lg text-green-400" /> : <FaLock className="text-lg" />}
@@ -41,12 +42,13 @@ export default function DashboardHeader({
 
         <button
           onClick={() => window.location.reload()}
+          aria-label="Refresh page"
           className="cursor-pointer"
         >
           <LuExpand />
         </button>
 
-        <Link scroll={false} href="/">
+        <Link scroll={false} href="/" aria-label="Close dashboard">
           <IoMdClose className="text-2xl" />
         </Link>
       </div>

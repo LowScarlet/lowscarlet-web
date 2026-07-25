@@ -118,10 +118,10 @@ export default function MainContent() {
   }, []);
 
   const social_media = [
-    { href: config?.SOCIAL_GITHUB || 'https://github.com/LowScarlet', icon: <FiGithub className='text-2xl' /> },
-    { href: config?.SOCIAL_INSTAGRAM || 'https://www.instagram.com/lowscarl3t', icon: <FiInstagram className='text-2xl' /> },
-    { href: config?.SOCIAL_LINKEDIN || 'https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221', icon: <BiLogoLinkedin className='text-2xl' /> },
-    { href: config?.SOCIAL_EMAIL ? (config.SOCIAL_EMAIL.startsWith('mailto:') ? config.SOCIAL_EMAIL : 'mailto:' + config.SOCIAL_EMAIL) : 'mailto:tegarmaulanafahreza.email@gmail.com', icon: <FiMail className='text-2xl' /> },
+    { name: 'GitHub Profile', href: config?.SOCIAL_GITHUB || 'https://github.com/LowScarlet', icon: <FiGithub className='text-2xl' /> },
+    { name: 'Instagram Profile', href: config?.SOCIAL_INSTAGRAM || 'https://www.instagram.com/lowscarl3t', icon: <FiInstagram className='text-2xl' /> },
+    { name: 'LinkedIn Profile', href: config?.SOCIAL_LINKEDIN || 'https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221', icon: <BiLogoLinkedin className='text-2xl' /> },
+    { name: 'Email Me', href: config?.SOCIAL_EMAIL ? (config.SOCIAL_EMAIL.startsWith('mailto:') ? config.SOCIAL_EMAIL : 'mailto:' + config.SOCIAL_EMAIL) : 'mailto:tegarmaulanafahreza.email@gmail.com', icon: <FiMail className='text-2xl' /> },
   ];
 
   return (
@@ -172,6 +172,7 @@ export default function MainContent() {
                 viewBox="0 0 44 30"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
                 className="shrink-0"
               >
                 {/* Curved hand-drawn arrow curve */}
@@ -263,6 +264,7 @@ export default function MainContent() {
               <Link
                 target="_blank"
                 href={itemSocial.href}
+                aria-label={itemSocial.name}
                 className="flex items-center gap-2.5 bg-neutral-50 dark:bg-neutral-700 dark:hover:bg-neutral-900 px-3 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 transition duration-300"
               >
                 {itemSocial.icon}

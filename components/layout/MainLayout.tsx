@@ -17,7 +17,7 @@ export default function MainLayout({
     fetch("/api/visitor");
   }, []);
   return (
-    <html>
+    <html lang="en">
       <body className={hanken_grotesk.className + ' bg-[#101010] relative min-h-screen'}>
         <BrandBackground />
         <EasterEggs />

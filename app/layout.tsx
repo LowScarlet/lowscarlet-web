@@ -82,9 +82,9 @@ export default async function RootLayout({
         {left}
 
         {/* MAIN */}
-        <div className="lg:z-60 flex-1">
+        <main className="lg:z-60 flex-1">
           {children}
-        </div>
+        </main>
 
         {/* RIGHT PANEL */}
         {right}

@@ -428,6 +428,7 @@ export default function SocialPage() {
                   setIsAdminModalOpen(true);
                 }
               }}
+              aria-label={isAdmin ? "Log out from Admin" : "Admin Login"}
               title={isAdmin ? "Log out from Admin" : "Admin Login"}
               className={`cursor-pointer transition duration-200 flex items-center justify-center ${
                 isAdmin ? "text-pink-500 hover:text-pink-405" : "text-gray-400 hover:text-white"
@@ -438,11 +439,12 @@ export default function SocialPage() {
           )}
           <button
             onClick={() => window.location.reload()}
+            aria-label="Refresh page"
             className="cursor-pointer text-gray-400 hover:text-white transition duration-200"
           >
             <LuExpand />
           </button>
-          <Link scroll={false} href="/">
+          <Link scroll={false} href="/" aria-label="Close social page">
             <IoMdClose className="text-2xl text-gray-400 hover:text-white transition duration-200 flex items-center justify-center" />
           </Link>
         </div>
