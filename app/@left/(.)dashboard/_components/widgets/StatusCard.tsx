@@ -94,7 +94,6 @@ export default function StatusCard({
           alt="Pixel cat"
           width={80}
           height={70}
-          unoptimized
           className="w-28 h-auto object-contain"
         />
       </div>
