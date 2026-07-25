@@ -203,10 +203,10 @@ const RepellingIconItem: React.FC<RepellingIconProps> = ({ item, mousePos }) => 
             "transform 0.25s ease-out, color 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
-        <span className="text-3xl sm:text-4xl lg:text-5xl transition-transform duration-200">
+        <span className="text-7xl sm:text-6xl lg:text-5xl transition-transform duration-200">
           {renderIcon}
         </span>
-        <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase opacity-70">
+        <span className="text-base sm:text-sm lg:text-xs font-semibold tracking-wider uppercase opacity-70">
           {item.name}
         </span>
       </div>
@@ -222,8 +222,8 @@ interface MarqueeRowProps {
 }
 
 const MarqueeRow: React.FC<MarqueeRowProps> = ({ items, direction, duration, mousePos }) => {
-  // Triple array for seamless infinite marquee loop
-  const duplicatedItems = [...items, ...items, ...items];
+  // Double array for 100% seamless infinite marquee loop (50% shift = 1 full copy)
+  const duplicatedItems = [...items, ...items];
   const animationClass = direction === "left" ? "animate-marquee-left" : "animate-marquee-right";
 
   return (

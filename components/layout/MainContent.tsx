@@ -46,6 +46,72 @@ const HINT_TEXTS = [
   "Who am I??????",
 ];
 
+function HoverPlayGif({
+  src,
+  alt,
+  width,
+  height,
+  className,
+}: {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  className?: string;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [staticFrame, setStaticFrame] = useState<string | null>(null);
+  const [playKey, setPlayKey] = useState(0);
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = src;
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth || width;
+        canvas.height = img.naturalHeight || height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          setStaticFrame(canvas.toDataURL("image/png"));
+        }
+      } catch {
+        // Fallback
+      }
+    };
+  }, [src, width, height]);
+
+  const handleMouseEnter = () => {
+    setPlayKey(Date.now());
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  const activeSrc = isHovered ? `${src}?v=${playKey}` : (staticFrame || src);
+
+  return (
+    <div
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="pointer-events-auto cursor-pointer select-none"
+    >
+      <Image
+        key={isHovered ? playKey : "static"}
+        src={activeSrc}
+        alt={alt}
+        width={width}
+        height={height}
+        unoptimized
+        className={className}
+      />
+    </div>
+  );
+}
+
 export default function MainContent() {
   const pathname = usePathname();
   const [config, setConfig] = useState<AppConfigMap | null>(null);
@@ -129,7 +195,7 @@ export default function MainContent() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-8 px-8 py-10 sm:min-w-lg max-w-md h-full"
+      className="relative space-y-8 px-8 py-10 sm:min-w-lg max-w-md h-full"
     >
       {/* PROFILE */}
       <motion.div variants={item} className="relative">
@@ -260,7 +326,19 @@ export default function MainContent() {
         </p>
 
         {/* SOCIAL */}
-        <div className="flex flex-row gap-3 mt-8 py-2">
+        <div className="relative flex flex-row gap-3 mt-8 py-2">
+          {/* CUTE CAT GIF */}
+          <div className="absolute -top-10 left-44 z-10 pointer-events-none select-none">
+            <Image
+              src="/cute-cat-white.gif"
+              alt="Cute cat"
+              width={80}
+              height={70}
+              unoptimized
+              className="w-16 h-auto object-contain"
+            />
+          </div>
+
           {social_media.map((itemSocial, index) => (
             <motion.div key={index} variants={item}>
               <Link
@@ -311,6 +389,17 @@ export default function MainContent() {
           })}
         </div>
       </motion.div>
+
+      {/* FIXED BOTTOM RIGHT SCREEN GIF */}
+      <div className="fixed bottom-4 right-4 sm:right-14 md:right-24 lg:right-54 xl:right-84 z-50 pointer-events-auto select-none">
+        <HoverPlayGif
+          src="/cute-cat-angry.gif"
+          alt="Angry cat"
+          width={80}
+          height={70}
+          className="w-22 h-auto object-contain"
+        />
+      </div>
     </motion.div>
   );
 }

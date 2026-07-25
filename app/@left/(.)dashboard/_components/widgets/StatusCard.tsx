@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { FaEdit } from "react-icons/fa";
 import { cn } from "@/libs/utils";
+import Image from "next/image";
 
 interface StatusCardProps {
   isAdmin: boolean;
@@ -36,7 +37,7 @@ export default function StatusCard({
         }
       }}
       className={cn(
-        "flex justify-between items-center bg-neutral-800 p-4 rounded-xl transition",
+        "relative flex justify-between items-center bg-neutral-800 p-4 rounded-xl transition",
         isAdmin && "hover:bg-neutral-700/80 cursor-pointer border border-dashed border-violet-500/40"
       )}
     >
@@ -83,6 +84,18 @@ export default function StatusCard({
                 ? "bg-red-400"
                 : "bg-violet-500"
           )}
+        />
+      </div>
+
+      {/* PIXEL CAT GIF */}
+      <div className="absolute -bottom-0 right-8 z-10 pointer-events-none select-none">
+        <Image
+          src="/pixel-cat.gif"
+          alt="Pixel cat"
+          width={80}
+          height={70}
+          unoptimized
+          className="w-28 h-auto object-contain"
         />
       </div>
     </motion.div>
