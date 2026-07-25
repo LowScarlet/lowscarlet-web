@@ -2,6 +2,7 @@
 
 import { Hanken_Grotesk } from "next/font/google";
 import { useEffect } from "react";
+import { IconContext } from "react-icons";
 import BrandBackground from "./BrandBackground";
 import EasterEggs from "../utils/EasterEggs";
 import CustomCursor from "../utils/CustomCursor";
@@ -19,12 +20,14 @@ export default function MainLayout({
   return (
     <html lang="en">
       <body className={hanken_grotesk.className + ' bg-[#101010] relative min-h-screen'}>
-        <BrandBackground />
-        <EasterEggs />
-        <CustomCursor />
-        <div className="flex justify-center w-full min-h-screen text-white">
-          {children}
-        </div>
+        <IconContext.Provider value={{ attr: { "aria-hidden": "true", "aria-label": "icon" } }}>
+          <BrandBackground />
+          <EasterEggs />
+          <CustomCursor />
+          <div className="flex justify-center w-full min-h-screen text-white">
+            {children}
+          </div>
+        </IconContext.Provider>
         {/* <SecondaryContent /> */}
       </body>
     </html>

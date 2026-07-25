@@ -186,6 +186,13 @@ const RepellingIconItem: React.FC<RepellingIconProps> = ({ item, mousePos }) => 
     };
   }, [mousePos]);
 
+  const renderIcon = React.isValidElement(item.icon)
+    ? React.cloneElement(item.icon as React.ReactElement<{ "aria-label"?: string; "aria-hidden"?: string }>, {
+        "aria-label": item.name,
+        "aria-hidden": "true",
+      })
+    : item.icon;
+
   return (
     <div ref={containerRef} className="relative overflow-visible shrink-0">
       <div
@@ -197,7 +204,7 @@ const RepellingIconItem: React.FC<RepellingIconProps> = ({ item, mousePos }) => 
         }}
       >
         <span className="text-3xl sm:text-4xl lg:text-5xl transition-transform duration-200">
-          {item.icon}
+          {renderIcon}
         </span>
         <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase opacity-70">
           {item.name}
