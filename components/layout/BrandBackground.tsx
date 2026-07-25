@@ -166,6 +166,9 @@ const RepellingIconItem: React.FC<RepellingIconProps> = ({ item, mousePos }) => 
         innerEl.style.transform = `translate3d(${pushX}px, ${pushY}px, 0px) scale(${scale})`;
         innerEl.style.color = activeColorRef.current.hex;
         innerEl.style.filter = activeColorRef.current.shadow;
+
+        // Only schedule frame loop while icon is repelled
+        animFrameId = requestAnimationFrame(checkProximity);
       } else {
         if (isCurrentlyActiveRef.current || innerEl.style.color !== "") {
           innerEl.style.transform = "translate3d(0px, 0px, 0px) scale(1)";
@@ -174,9 +177,6 @@ const RepellingIconItem: React.FC<RepellingIconProps> = ({ item, mousePos }) => 
           isCurrentlyActiveRef.current = false;
         }
       }
-
-      // Continuously check proximity on frame loop so moving marquee items automatically reset when scrolling past stationary mouse
-      animFrameId = requestAnimationFrame(checkProximity);
     };
 
     checkProximity();

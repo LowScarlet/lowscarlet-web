@@ -142,6 +142,8 @@ export default function MainContent() {
                     placeholder="blur"
                     src={profilePic}
                     alt="Tegar Maulana Fahreza"
+                    sizes="48px"
+                    priority
                     className="object-cover w-full h-full"
                   />
 

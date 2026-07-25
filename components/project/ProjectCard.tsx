@@ -144,6 +144,7 @@ export default function ProjectCard({
                 src={images[index]}
                 alt={`${title} screenshot ${index + 1}`}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                 className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
             )}
