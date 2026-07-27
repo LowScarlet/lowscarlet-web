@@ -37,19 +37,31 @@ export default function CreativeCvContent({
     <div className="w-full max-w-[210mm] aspect-[210/297] print:aspect-auto print:w-full mx-auto grid grid-cols-12 rounded-none border border-slate-300 bg-white text-slate-900 shadow-xl font-sans text-left overflow-hidden">
       {/* ================= LEFT SIDEBAR COLUMN (Grey Background) ================= */}
       <div className="col-span-4 bg-slate-200 p-4 sm:p-6 space-y-4 border-r border-slate-300 text-slate-800 overflow-y-auto">
-        {/* Photo Placeholder */}
+        {/* Photo Container */}
         <div className="text-center">
           <div className="w-36 h-36 mx-auto rounded-full border-4 border-white shadow-md overflow-hidden bg-slate-300 flex flex-col items-center justify-center text-slate-500 relative group">
-            <svg
-              className="w-20 h-20 text-slate-400"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-              Foto Profile
-            </span>
+            {profile.photoPas || profile.photoPro ? (
+              <Image
+                src={profile.photoPas || profile.photoPro || ""}
+                alt={profile.fullName}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            ) : (
+              <>
+                <svg
+                  className="w-20 h-20 text-slate-400"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                  Foto Profile
+                </span>
+              </>
+            )}
           </div>
         </div>
 

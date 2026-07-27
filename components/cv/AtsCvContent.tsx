@@ -9,6 +9,8 @@ export interface AtsCvProfile {
   github: string;
   linkedin: string;
   whatsapp?: string;
+  photoPro?: string;
+  photoPas?: string;
 }
 
 export interface AtsEducationItem {

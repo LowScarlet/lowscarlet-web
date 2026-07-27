@@ -2,7 +2,8 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { FaUserEdit, FaSpinner, FaPlus, FaTrash, FaEdit } from "react-icons/fa";
+import Image from "next/image";
+import { FaUserEdit, FaSpinner, FaPlus, FaTrash, FaEdit, FaUpload, FaCamera } from "react-icons/fa";
 import Modal from "@/components/utils/Modal";
 import { cn } from "@/libs/utils";
 
@@ -34,6 +35,10 @@ export default function ProfileModal({
   const [github, setGithub] = useState("");
   const [linkedin, setLinkedin] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [photoPro, setPhotoPro] = useState("");
+  const [photoPas, setPhotoPas] = useState("");
+  const [uploadingPro, setUploadingPro] = useState(false);
+  const [uploadingPas, setUploadingPas] = useState(false);
 
   // Tab 2: Educations State
   const [educationsList, setEducationsList] = useState<any[]>([]);
@@ -91,6 +96,8 @@ export default function ProfileModal({
         setGithub(profile.github || "");
         setLinkedin(profile.linkedin || "");
         setWhatsapp(profile.whatsapp || "");
+        setPhotoPro(profile.photoPro || "");
+        setPhotoPas(profile.photoPas || "");
 
         setEducationsList(educations || []);
         setExperiencesList(experiences || []);
@@ -156,6 +163,34 @@ export default function ProfileModal({
     setSkillItemsText("");
   };
 
+  // Upload Blob Photo Handler
+  const handlePhotoUpload = async (file: File, type: "pro" | "pas") => {
+    const setUploading = type === "pro" ? setUploadingPro : setUploadingPas;
+    const setPhoto = type === "pro" ? setPhotoPro : setPhotoPas;
+
+    setUploading(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+        method: "POST",
+        body: file,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to upload image");
+      }
+
+      const data = await res.json();
+      setPhoto(data.url);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Error uploading image");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   // --- SAVE PROFILE (TAB 1) ---
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,6 +208,8 @@ export default function ProfileModal({
         { key: "SOCIAL_GITHUB", value: github },
         { key: "SOCIAL_LINKEDIN", value: linkedin },
         { key: "SOCIAL_WHATSAPP", value: whatsapp },
+        { key: "PROFILE_PHOTO_PRO", value: photoPro },
+        { key: "PROFILE_PHOTO_PAS", value: photoPas },
       ];
 
       for (const item of updates) {
@@ -488,7 +525,145 @@ export default function ProfileModal({
           <div className="flex-1 overflow-y-auto pr-1 space-y-4">
             {/* TAB 1: PROFIL */}
             {activeTab === "profile" && (
-              <form onSubmit={handleSaveProfile} className="space-y-3">
+              <form onSubmit={handleSaveProfile} className="space-y-4">
+                {/* Photo Upload Section */}
+                <div className="border border-neutral-800/80 rounded-xl p-3.5 bg-neutral-950/40 space-y-3">
+                  <div className="flex items-center justify-between border-b border-neutral-800/50 pb-2">
+                    <span className="text-gray-300 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                      <FaCamera className="text-cyan-400" /> Foto Profil & CV
+                    </span>
+                    <span className="text-[10px] text-gray-500 font-mono">Vercel Blob Storage</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Card 1: Foto Profesional */}
+                    <div className="bg-neutral-900/60 border border-neutral-800 rounded-lg p-3 flex flex-col items-center space-y-2 text-center">
+                      <span className="text-[11px] font-semibold text-gray-300 uppercase tracking-wider">
+                        Foto Profesional
+                      </span>
+                      
+                      <div className="relative w-28 h-28 rounded-lg bg-neutral-950 border border-neutral-800 flex items-center justify-center overflow-hidden group shadow-inner">
+                        {uploadingPro ? (
+                          <div className="flex flex-col items-center gap-1 p-2">
+                            <FaSpinner className="animate-spin text-cyan-400 text-base" />
+                            <span className="text-[9px] text-gray-400">Uploading...</span>
+                          </div>
+                        ) : photoPro ? (
+                          <>
+                            <Image
+                              src={photoPro}
+                              alt="Foto Profesional"
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <label className="p-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-md cursor-pointer transition shadow-md" title="Ganti Foto">
+                                <FaUpload size={12} />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handlePhotoUpload(file, "pro");
+                                  }}
+                                />
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => setPhotoPro("")}
+                                className="p-1.5 bg-red-600 hover:bg-red-500 text-white rounded-md cursor-pointer transition shadow-md"
+                                title="Hapus Foto"
+                              >
+                                <FaTrash size={12} />
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-800/50 transition p-2 text-gray-500 hover:text-gray-300">
+                            <FaUpload size={18} className="mb-1 text-cyan-400/70" />
+                            <span className="text-[10px] font-semibold">Upload Foto</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handlePhotoUpload(file, "pro");
+                              }}
+                            />
+                          </label>
+                        )}
+                      </div>
+                      <span className="text-[9px] text-gray-500">Santai / Portofolio</span>
+                    </div>
+
+                    {/* Card 2: Pas Foto */}
+                    <div className="bg-neutral-900/60 border border-neutral-800 rounded-lg p-3 flex flex-col items-center space-y-2 text-center">
+                      <span className="text-[11px] font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1">
+                        Pas Foto <span className="text-[9px] text-cyan-400 font-mono">(Creative CV)</span>
+                      </span>
+
+                      <div className="relative w-28 h-28 rounded-lg bg-neutral-950 border border-neutral-800 flex items-center justify-center overflow-hidden group shadow-inner">
+                        {uploadingPas ? (
+                          <div className="flex flex-col items-center gap-1 p-2">
+                            <FaSpinner className="animate-spin text-cyan-400 text-base" />
+                            <span className="text-[9px] text-gray-400">Uploading...</span>
+                          </div>
+                        ) : photoPas ? (
+                          <>
+                            <Image
+                              src={photoPas}
+                              alt="Pas Foto"
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <label className="p-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-md cursor-pointer transition shadow-md" title="Ganti Pas Foto">
+                                <FaUpload size={12} />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handlePhotoUpload(file, "pas");
+                                  }}
+                                />
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => setPhotoPas("")}
+                                className="p-1.5 bg-red-600 hover:bg-red-500 text-white rounded-md cursor-pointer transition shadow-md"
+                                title="Hapus Foto"
+                              >
+                                <FaTrash size={12} />
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-800/50 transition p-2 text-gray-500 hover:text-gray-300">
+                            <FaUpload size={18} className="mb-1 text-cyan-400/70" />
+                            <span className="text-[10px] font-semibold">Upload Pas Foto</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handlePhotoUpload(file, "pas");
+                              }}
+                            />
+                          </label>
+                        )}
+                      </div>
+                      <span className="text-[9px] text-gray-500">Formal 3x4 / 4x6</span>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">Nama Lengkap</label>

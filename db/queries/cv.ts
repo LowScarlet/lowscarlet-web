@@ -58,6 +58,8 @@ export async function getFullCvData() {
       github: configs.SOCIAL_GITHUB,
       linkedin: configs.SOCIAL_LINKEDIN,
       whatsapp: configs.SOCIAL_WHATSAPP,
+      photoPro: configs.PROFILE_PHOTO_PRO,
+      photoPas: configs.PROFILE_PHOTO_PAS,
     },
     educations: educationList.map(item => ({
       ...item,

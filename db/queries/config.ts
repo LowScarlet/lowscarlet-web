@@ -72,6 +72,14 @@ export const defaultConfigs = [
     id: "PROFILE_WEBSITE",
     value: "lowscarlet.my.id",
   },
+  {
+    id: "PROFILE_PHOTO_PRO",
+    value: "",
+  },
+  {
+    id: "PROFILE_PHOTO_PAS",
+    value: "",
+  },
 ] as const;
 
 type DefaultConfigs = typeof defaultConfigs;
@@ -160,6 +168,8 @@ export async function getAllConfigs(): Promise<AppConfigMap> {
     PROFILE_LOCATION: String(mapped.PROFILE_LOCATION ?? "Pekanbaru, Riau, Indonesia"),
     PROFILE_PHONE: String(mapped.PROFILE_PHONE ?? "+62 812 7063 4992"),
     PROFILE_WEBSITE: String(mapped.PROFILE_WEBSITE ?? "lowscarlet.my.id"),
+    PROFILE_PHOTO_PRO: String(mapped.PROFILE_PHOTO_PRO ?? ""),
+    PROFILE_PHOTO_PAS: String(mapped.PROFILE_PHOTO_PAS ?? ""),
   };
 }
 
