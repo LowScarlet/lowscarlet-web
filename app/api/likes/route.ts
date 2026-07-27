@@ -4,6 +4,7 @@ import { likes } from "@/db/schema";
 import { getIP } from "@/db/queries/visitors";
 import { count, eq, desc } from "drizzle-orm";
 import { censorIp } from "@/libs/ipUtils";
+import { rateLimit } from "@/libs/rateLimit";
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +54,24 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const ip = getIP(req);
+
+    // Rate limit: max 3 like requests per IP per 30 seconds
+    const rl = rateLimit(`like:${ip}`, { limit: 3, windowSeconds: 30 });
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: `Terlalu banyak request. Coba lagi dalam ${rl.retryAfter} detik.` },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rl.retryAfter),
+            "X-RateLimit-Limit": "3",
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(Math.ceil(rl.resetAt / 1000)),
+          },
+        }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const name = body.name?.trim() || null;
 
