@@ -1,23 +1,14 @@
 'use client'
 
 import { motion } from "framer-motion";
-import { FaEdit } from "react-icons/fa";
 import { SiReaddotcv } from "react-icons/si";
 
 interface CvCardProps {
-  isAdmin: boolean;
-  onManageCv: () => void;
   onPreviewCv: (url: string, title: string) => void;
-  cvCreativeUrl: string;
-  cvAtsUrl: string;
 }
 
 export default function CvCard({
-  isAdmin,
-  onManageCv,
   onPreviewCv,
-  cvCreativeUrl,
-  cvAtsUrl,
 }: CvCardProps) {
   return (
     <motion.div
@@ -37,39 +28,31 @@ export default function CvCard({
           </motion.span>
           <span>My Curriculum Vitae</span>
         </span>
-        {isAdmin && (
-          <button
-            onClick={onManageCv}
-            className="p-1.5 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-gray-400 hover:text-white rounded-md cursor-pointer transition shadow-xs"
-            title="Manage CVs"
-          >
-            <FaEdit size={14} />
-          </button>
-        )}
       </h1>
 
-      <div className="flex gap-2">
-        {/* CREATIVE */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="flex-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+        {/* CREATIVE CV */}
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
           <button
             type="button"
-            onClick={() => onPreviewCv(cvCreativeUrl || "/cv-creative.pdf", "Creative CV")}
-            className="w-full block relative bg-linear-to-r from-pink-500 to-violet-500 px-4 py-2 rounded-lg overflow-hidden font-medium text-white text-sm text-center cursor-pointer"
+            onClick={() => onPreviewCv("/cv/creative", "Creative CV (Generated from DB)")}
+            className="w-full block relative bg-linear-to-r from-cyan-600 via-indigo-600 to-blue-600 hover:opacity-90 px-4 py-2.5 rounded-lg overflow-hidden font-semibold text-white text-xs text-center transition cursor-pointer shadow-md"
           >
-            <span className="absolute inset-0 bg-white/20 opacity-30 blur-lg" />
+            <span className="absolute inset-0 bg-white/10 opacity-30 blur-sm" />
             Creative
           </button>
         </motion.div>
 
-        {/* ATS */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="flex-1">
+        {/* ATS CV */}
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
           <button
             type="button"
-            onClick={() => onPreviewCv(cvAtsUrl || "/resume_ats.pdf", "ATS CV")}
-            className="w-full block relative bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded-lg overflow-hidden font-medium text-sm text-center transition cursor-pointer"
+            onClick={() => onPreviewCv("/cv/ats", "ATS CV (Generated from DB)")}
+            className="w-full block relative bg-linear-to-r from-pink-600 via-purple-600 to-violet-600 hover:opacity-90 px-4 py-2.5 rounded-lg overflow-hidden font-semibold text-white text-xs text-center transition cursor-pointer shadow-md"
           >
-            <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition" />
-            ATS Version
+            <span className="absolute inset-0 bg-white/10 opacity-30 blur-sm" />
+            ATS
           </button>
         </motion.div>
       </div>

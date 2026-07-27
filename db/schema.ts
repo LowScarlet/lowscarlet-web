@@ -1,6 +1,10 @@
 import {
+  boolean,
+  integer,
   jsonb,
-  pgTable, text, timestamp,
+  pgTable,
+  text,
+  timestamp,
   uuid
 } from "drizzle-orm/pg-core";
 
@@ -58,4 +62,56 @@ export const projects = pgTable("projects", {
 
   startDate: timestamp(),
   releaseDate: timestamp(),
+
+  // Extended fields for CV generation
+  location: text(),
+  cvSubtitle: text(),
+  cvHighlights: jsonb().$type<string[]>() ,
+  displayOrder: integer().default(0),
 });
+
+export const educations = pgTable("educations", {
+  id: uuid().defaultRandom().primaryKey(),
+  institution: text().notNull(),
+  location: text(),
+  degree: text().notNull(),
+  gpa: text(),
+  startDate: timestamp(),
+  endDate: timestamp(),
+  thesis: text(),
+  relevantCoursework: jsonb().$type<string[]>(),
+  displayOrder: integer().default(0),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const experiences = pgTable("experiences", {
+  id: uuid().defaultRandom().primaryKey(),
+  company: text().notNull(),
+  location: text(),
+  role: text().notNull(),
+  startDate: timestamp(),
+  endDate: timestamp(),
+  isCurrent: boolean().default(false),
+  highlights: jsonb().$type<string[]>().notNull(),
+  displayOrder: integer().default(0),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const certifications = pgTable("certifications", {
+  id: uuid().defaultRandom().primaryKey(),
+  title: text().notNull(),
+  issuer: text().notNull(),
+  location: text(),
+  issueDate: timestamp(),
+  credentialUrl: text(),
+  displayOrder: integer().default(0),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const skills = pgTable("skills", {
+  id: uuid().defaultRandom().primaryKey(),
+  category: text().notNull(),
+  items: jsonb().$type<string[]>().notNull(),
+  displayOrder: integer().default(0),
+  createdAt: timestamp().defaultNow(),
+});

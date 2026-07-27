@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { projects } from "@/db/schema";
+import { certifications } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import crypto from "crypto";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 async function verifyAdmin() {
   const cookieStore = await cookies();
@@ -28,29 +28,22 @@ export async function PATCH(
     const data = await req.json();
 
     const updated = await db
-      .update(projects)
+      .update(certifications)
       .set({
         title: data.title,
-        category: data.category,
-        description: data.description,
-        images: data.images,
-        tags: data.tags,
-        techs: data.techs,
-        links: data.links,
-        contributors: data.contributors,
-        startDate: data.startDate ? new Date(data.startDate) : null,
-        releaseDate: data.releaseDate ? new Date(data.releaseDate) : null,
+        issuer: data.issuer,
         location: data.location,
-        cvSubtitle: data.cvSubtitle,
-        cvHighlights: data.cvHighlights,
+        issueDate: data.issueDate ? new Date(data.issueDate) : null,
+        credentialUrl: data.credentialUrl,
+        displayOrder: Number(data.displayOrder || 0),
       })
-      .where(eq(projects.id, id))
+      .where(eq(certifications.id, id))
       .returning();
 
     return NextResponse.json(updated[0]);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to update certification" }, { status: 500 });
   }
 }
 
@@ -64,12 +57,10 @@ export async function DELETE(
     }
 
     const { id } = await context.params;
-
-    await db.delete(projects).where(eq(projects.id, id));
-
+    await db.delete(certifications).where(eq(certifications.id, id));
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to delete certification" }, { status: 500 });
   }
 }

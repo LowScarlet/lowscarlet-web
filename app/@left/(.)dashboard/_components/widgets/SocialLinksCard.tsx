@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FaUsers, FaEdit } from "react-icons/fa";
+import { FaUsers, FaEdit, FaWhatsapp, FaDiscord } from "react-icons/fa";
 import { FiGithub, FiInstagram, FiMail } from "react-icons/fi";
 import { BiLogoLinkedin } from "react-icons/bi";
 
@@ -13,6 +13,8 @@ interface SocialLinksCardProps {
   socialInstagram: string;
   socialLinkedin: string;
   socialEmail: string;
+  socialWhatsapp: string;
+  socialDiscord?: string;
 }
 
 export default function SocialLinksCard({
@@ -22,10 +24,20 @@ export default function SocialLinksCard({
   socialInstagram,
   socialLinkedin,
   socialEmail,
+  socialWhatsapp,
+  socialDiscord,
 }: SocialLinksCardProps) {
   const mailtoLink = socialEmail
     ? (socialEmail.startsWith("mailto:") ? socialEmail : "mailto:" + socialEmail)
     : "mailto:tegarmaulanafahreza.email@gmail.com";
+
+  const waLink = socialWhatsapp
+    ? (socialWhatsapp.startsWith("http") ? socialWhatsapp : "https://wa.me/" + socialWhatsapp.replace(/\D/g, ""))
+    : "https://wa.me/6281270634992";
+
+  const discordLink = socialDiscord
+    ? (socialDiscord.startsWith("http") ? socialDiscord : `https://discord.com/users/${socialDiscord}`)
+    : "https://discord.com/users/lowscarlet";
 
   return (
     <motion.div
@@ -42,7 +54,7 @@ export default function SocialLinksCard({
         {isAdmin && (
           <button
             onClick={onManageSocial}
-            className="p-1.5 bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-gray-400 hover:text-white rounded-md cursor-pointer transition shadow-xs"
+            className="p-1.5 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-gray-400 hover:text-white rounded-md cursor-pointer transition shadow-xs"
             title="Manage Social Links"
           >
             <FaEdit size={14} />
@@ -82,6 +94,22 @@ export default function SocialLinksCard({
         >
           <FiMail className="text-red-400 text-sm" />
           <span className="truncate">Email</span>
+        </Link>
+        <Link
+          href={waLink}
+          target="_blank"
+          className="bg-neutral-800 hover:bg-neutral-755 px-3 py-2 rounded-lg flex items-center gap-2 text-gray-300 transition"
+        >
+          <FaWhatsapp className="text-emerald-400 text-sm" />
+          <span className="truncate">WhatsApp</span>
+        </Link>
+        <Link
+          href={discordLink}
+          target="_blank"
+          className="bg-neutral-800 hover:bg-neutral-755 px-3 py-2 rounded-lg flex items-center gap-2 text-gray-300 transition"
+        >
+          <FaDiscord className="text-indigo-400 text-sm" />
+          <span className="truncate">Discord</span>
         </Link>
       </div>
     </motion.div>

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { projects } from "@/db/schema";
+import { experiences } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import crypto from "crypto";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 async function verifyAdmin() {
   const cookieStore = await cookies();
@@ -28,29 +28,24 @@ export async function PATCH(
     const data = await req.json();
 
     const updated = await db
-      .update(projects)
+      .update(experiences)
       .set({
-        title: data.title,
-        category: data.category,
-        description: data.description,
-        images: data.images,
-        tags: data.tags,
-        techs: data.techs,
-        links: data.links,
-        contributors: data.contributors,
-        startDate: data.startDate ? new Date(data.startDate) : null,
-        releaseDate: data.releaseDate ? new Date(data.releaseDate) : null,
+        company: data.company,
         location: data.location,
-        cvSubtitle: data.cvSubtitle,
-        cvHighlights: data.cvHighlights,
+        role: data.role,
+        startDate: data.startDate ? new Date(data.startDate) : null,
+        endDate: data.endDate ? new Date(data.endDate) : null,
+        isCurrent: Boolean(data.isCurrent),
+        highlights: data.highlights,
+        displayOrder: Number(data.displayOrder || 0),
       })
-      .where(eq(projects.id, id))
+      .where(eq(experiences.id, id))
       .returning();
 
     return NextResponse.json(updated[0]);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to update experience" }, { status: 500 });
   }
 }
 
@@ -64,12 +59,10 @@ export async function DELETE(
     }
 
     const { id } = await context.params;
-
-    await db.delete(projects).where(eq(projects.id, id));
-
+    await db.delete(experiences).where(eq(experiences.id, id));
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to delete experience" }, { status: 500 });
   }
 }

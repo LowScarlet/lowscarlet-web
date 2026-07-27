@@ -56,6 +56,9 @@ export async function POST(req: Request) {
       contributors: data.contributors || [],
       startDate: data.startDate ? new Date(data.startDate) : null,
       releaseDate: data.releaseDate ? new Date(data.releaseDate) : null,
+      location: data.location || null,
+      cvSubtitle: data.cvSubtitle || null,
+      cvHighlights: data.cvHighlights || [],
     }).returning();
 
     return NextResponse.json(newProject[0]);

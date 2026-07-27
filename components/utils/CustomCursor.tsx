@@ -1,109 +1,137 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      const savedPos = sessionStorage.getItem("lowscarlet_mouse_pos");
-      if (savedPos) {
-        const parsed = JSON.parse(savedPos);
-        if (typeof parsed.x === "number" && typeof parsed.y === "number") {
-          return parsed;
-        }
-      }
-    } catch {
-      // Ignore parse error
-    }
-    return null;
-  });
-
-  const [isHovered, setIsHovered] = useState(false);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
+  // Position, Hover & Scroll tracking via Refs (0 React re-renders on move/hover/scroll)
+  const mousePos = useRef({ x: -100, y: -100 });
+  const ringPos = useRef({ x: -100, y: -100 });
+  const isHoveredRef = useRef(false);
+  const currentScaleDot = useRef(1);
+  const currentScaleRing = useRef(1);
+
+  // Scroll Animation Physics Refs
+  const scrollVel = useRef(0);
+  const lastScrollY = useRef(0);
+
   useEffect(() => {
-    // Disable custom cursor on touch/mobile devices
-    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-    if (isTouchDevice) return;
+    // Disable on touch devices
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    let animationFrameId: number;
 
     const onMouseMove = (e: MouseEvent) => {
-      const pos = { x: e.clientX, y: e.clientY };
-      setMousePosition(pos);
-      setIsVisible(true);
+      mousePos.current.x = e.clientX;
+      mousePos.current.y = e.clientY;
+      if (!isVisible) setIsVisible(true);
 
-      // Save last position in sessionStorage
-      sessionStorage.setItem("lowscarlet_mouse_pos", JSON.stringify(pos));
+      // Stable clickable detection (handles nested children inside buttons/links)
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const isClickable = !!(
+          target.closest("a, button, [role='button'], input, select, textarea, .cursor-pointer") ||
+          window.getComputedStyle(target).cursor === "pointer"
+        );
+        isHoveredRef.current = isClickable;
+
+        if (ringRef.current) {
+          if (isClickable) {
+            ringRef.current.classList.add("ring-hover");
+          } else {
+            ringRef.current.classList.remove("ring-hover");
+          }
+        }
+      }
     };
 
-    const onMouseEnter = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      setIsVisible(true);
-    };
-
-    const handleMouseLeave = () => {
+    const onMouseLeave = () => {
       setIsVisible(false);
     };
 
-    const onMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
+    // Scroll Physics Event Handler
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      const delta = Math.abs(currentY - lastScrollY.current);
+      lastScrollY.current = currentY;
+      scrollVel.current = Math.min(scrollVel.current + delta * 0.08, 1.2);
+    };
 
-      const isClickable =
-        target.tagName === "BUTTON" ||
-        target.tagName === "A" ||
-        target.closest("button") !== null ||
-        target.closest("a") !== null ||
-        window.getComputedStyle(target).cursor === "pointer";
-
-      setIsHovered(isClickable);
+    const onWheel = (e: WheelEvent) => {
+      const delta = Math.abs(e.deltaY);
+      scrollVel.current = Math.min(scrollVel.current + delta * 0.003, 1.2);
     };
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
-    window.addEventListener("mouseenter", onMouseEnter, { passive: true });
-    document.addEventListener("mouseleave", handleMouseLeave);
-    window.addEventListener("mouseover", onMouseOver, { passive: true });
+    document.addEventListener("mouseleave", onMouseLeave);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("wheel", onWheel, { passive: true });
+
+    // Continuous 60-120fps RAF loop handling position, scale & scroll physics
+    const render = () => {
+      // 1. Decay scroll velocity smoothly towards 0
+      scrollVel.current *= 0.88;
+
+      const scrollStretchX = 1 - Math.min(scrollVel.current * 0.25, 0.35);
+      const scrollStretchY = 1 + Math.min(scrollVel.current * 0.45, 0.6);
+
+      const targetScaleDot = isHoveredRef.current ? 1.5 : 1;
+      const targetScaleRing = isHoveredRef.current ? 1.4 : 1;
+
+      // Smooth lerp for scale to eliminate sudden size jumps/glitches
+      currentScaleDot.current += (targetScaleDot - currentScaleDot.current) * 0.2;
+      currentScaleRing.current += (targetScaleRing - currentScaleRing.current) * 0.2;
+
+      // 2. Inner dot snaps to mouse position
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${mousePos.current.x - 5}px, ${mousePos.current.y - 5}px, 0) scale(${currentScaleDot.current.toFixed(3)})`;
+      }
+
+      // 3. Outer ring follows with smooth 0.3 lerp + Scroll velocity dynamic stretch & squeeze
+      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.3;
+      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.3;
+
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate3d(${ringPos.current.x - 16}px, ${ringPos.current.y - 16}px, 0) scale(${currentScaleRing.current.toFixed(3)}) scale(${scrollStretchX.toFixed(3)}, ${scrollStretchY.toFixed(3)})`;
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseenter", onMouseEnter);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-      window.removeEventListener("mouseover", onMouseOver);
+      document.removeEventListener("mouseleave", onMouseLeave);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("wheel", onWheel);
+      cancelAnimationFrame(animationFrameId);
     };
-  }, []);
-
-  // DO NOT RENDER until mousePosition is valid to prevent (0,0) top-left jump!
-  if (!isVisible || !mousePosition) return null;
+  }, [isVisible]);
 
   return (
     <>
-      {/* Small Inner Glowing Pink Dot */}
-      <motion.div
+      {/* Inner Glowing Pink Dot */}
+      <div
+        ref={dotRef}
         aria-hidden="true"
-        initial={false}
-        className="fixed top-0 left-0 w-2.5 h-2.5 bg-pink-500 rounded-full pointer-events-none z-[99999] shadow-[0_0_10px_#ec4899]"
-        animate={{
-          x: mousePosition.x - 5,
-          y: mousePosition.y - 5,
-          scale: isHovered ? 1.5 : 1,
-        }}
-        transition={{ type: "spring", stiffness: 1000, damping: 50, mass: 0.1 }}
+        className={`fixed top-0 left-0 w-2.5 h-2.5 bg-pink-500 rounded-full pointer-events-none z-[99999] shadow-[0_0_10px_#ec4899] transition-opacity duration-200 ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+        style={{ willChange: "transform" }}
       />
 
-      {/* Smooth Following Outer Ring */}
-      <motion.div
+      {/* Responsive Following Outer Ring with Scroll Fluid Stretch Physics */}
+      <div
+        ref={ringRef}
         aria-hidden="true"
-        initial={false}
-        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-pink-500/60 pointer-events-none z-[99998] shadow-[0_0_15px_rgba(236,72,153,0.3)]"
-        animate={{
-          x: mousePosition.x - 16,
-          y: mousePosition.y - 16,
-          scale: isHovered ? 1.8 : 1,
-          backgroundColor: isHovered ? "rgba(236, 72, 153, 0.18)" : "rgba(236, 72, 153, 0.04)",
-          borderColor: isHovered ? "rgba(236, 72, 153, 0.9)" : "rgba(236, 72, 153, 0.5)",
-        }}
-        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+        className={`fixed top-0 left-0 w-8 h-8 rounded-full border border-pink-500/60 bg-pink-500/5 shadow-[0_0_10px_rgba(236,72,153,0.2)] pointer-events-none z-[99998] transition-colors duration-200 [&.ring-hover]:border-pink-500/90 [&.ring-hover]:bg-pink-500/20 [&.ring-hover]:shadow-[0_0_15px_rgba(236,72,153,0.5)] ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+        style={{ willChange: "transform" }}
       />
     </>
   );

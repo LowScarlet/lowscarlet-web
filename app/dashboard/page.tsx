@@ -1,9 +1,5 @@
-'use client'
-
-import MainContent from "@/components/layout/MainContent";
+import { redirect } from "next/navigation";
 
 export default function DashboardPage() {
-  return (
-    <MainContent />
-  );
+  redirect("/");
 }

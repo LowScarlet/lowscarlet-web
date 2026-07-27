@@ -16,10 +16,10 @@ import CommitList from "./widgets/CommitList";
 
 // Subcomponents - Modals
 import StatusModal from "./modals/StatusModal";
-import CvModal from "./modals/CvModal";
 import SocialModal from "./modals/SocialModal";
 import PreviewModal from "./modals/PreviewModal";
 import ProjectsModal from "./modals/ProjectsModal";
+import ProfileModal from "./modals/ProfileModal";
 
 const container = {
   hidden: {},
@@ -39,10 +39,10 @@ export default function MainContent({
   
   // Modals Visibility
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showCvModal, setShowCvModal] = useState(false);
   const [showSocialModal, setShowSocialModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showProjectsModal, setShowProjectsModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   // Centralized Config / Projects state
   const [currentConfig, setCurrentConfig] = useState<AppConfigMap>(config);
@@ -117,6 +117,8 @@ export default function MainContent({
     instagram: string;
     linkedin: string;
     email: string;
+    whatsapp: string;
+    discord: string;
   }) => {
     const gitRes = await fetch("/api/config/SOCIAL_GITHUB", {
       method: "PATCH",
@@ -142,13 +144,27 @@ export default function MainContent({
       body: JSON.stringify({ value: socials.email }),
     });
 
-    if (gitRes.ok && igRes.ok && liRes.ok && emailRes.ok) {
+    const waRes = await fetch("/api/config/SOCIAL_WHATSAPP", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value: socials.whatsapp }),
+    });
+
+    const dcRes = await fetch("/api/config/SOCIAL_DISCORD", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value: socials.discord }),
+    });
+
+    if (gitRes.ok && igRes.ok && liRes.ok && emailRes.ok && waRes.ok && dcRes.ok) {
       setCurrentConfig((prev) => ({
         ...prev,
         SOCIAL_GITHUB: socials.github,
         SOCIAL_INSTAGRAM: socials.instagram,
         SOCIAL_LINKEDIN: socials.linkedin,
         SOCIAL_EMAIL: socials.email,
+        SOCIAL_WHATSAPP: socials.whatsapp,
+        SOCIAL_DISCORD: socials.discord,
       }));
     } else {
       throw new Error("Failed to update one of the social media links.");
@@ -171,7 +187,11 @@ export default function MainContent({
   return (
     <>
       {/* Dashboard Top Navigation */}
-      <DashboardHeader isAdmin={isAdmin} onLogout={handleLogout} />
+      <DashboardHeader
+        isAdmin={isAdmin}
+        onLogout={handleLogout}
+        onManageProfile={() => setShowProfileModal(true)}
+      />
 
       {/* Main Widgets Container */}
       <div className="space-y-4 px-6 py-2 overflow-y-auto text-gray-400 grow">
@@ -222,10 +242,6 @@ export default function MainContent({
 
         {/* Curriculum Vitae Widget */}
         <CvCard
-          isAdmin={isAdmin}
-          cvAtsUrl={currentConfig.CV_ATS_URL || "/resume_ats.pdf"}
-          cvCreativeUrl={currentConfig.CV_CREATIVE_URL || "/cv-creative.pdf"}
-          onManageCv={() => setShowCvModal(true)}
           onPreviewCv={handlePreviewCv}
         />
 
@@ -236,6 +252,8 @@ export default function MainContent({
           socialInstagram={currentConfig.SOCIAL_INSTAGRAM || "https://www.instagram.com/lowscarl3t"}
           socialLinkedin={currentConfig.SOCIAL_LINKEDIN || "https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221"}
           socialEmail={currentConfig.SOCIAL_EMAIL || "tegarmaulanafahreza.email@gmail.com"}
+          socialWhatsapp={currentConfig.SOCIAL_WHATSAPP || "https://wa.me/6281270634992"}
+          socialDiscord={currentConfig.SOCIAL_DISCORD || "https://discord.com/users/lowscarlet"}
           onManageSocial={() => setShowSocialModal(true)}
         />
 
@@ -252,14 +270,6 @@ export default function MainContent({
         onSave={handleSaveStatus}
       />
 
-      <CvModal
-        isOpen={showCvModal}
-        onClose={() => setShowCvModal(false)}
-        cvAtsUrl={currentConfig.CV_ATS_URL || "/resume_ats.pdf"}
-        cvCreativeUrl={currentConfig.CV_CREATIVE_URL || "/cv-creative.pdf"}
-        onUpdateConfig={handleUpdateConfig}
-      />
-
       <SocialModal
         isOpen={showSocialModal}
         onClose={() => setShowSocialModal(false)}
@@ -268,6 +278,8 @@ export default function MainContent({
           instagram: currentConfig.SOCIAL_INSTAGRAM || "https://www.instagram.com/lowscarl3t",
           linkedin: currentConfig.SOCIAL_LINKEDIN || "https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221",
           email: currentConfig.SOCIAL_EMAIL || "tegarmaulanafahreza.email@gmail.com",
+          whatsapp: currentConfig.SOCIAL_WHATSAPP || "https://wa.me/6281270634992",
+          discord: currentConfig.SOCIAL_DISCORD || "https://discord.com/users/lowscarlet",
         }}
         onSave={handleSaveSocials}
       />
@@ -287,6 +299,15 @@ export default function MainContent({
         isOpen={showProjectsModal}
         onClose={() => setShowProjectsModal(false)}
         onProjectsChanged={fetchAllProjects}
+      />
+
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onCvDataUpdated={() => {
+          // Re-fetch projects or config if needed
+          fetchAllProjects();
+        }}
       />
     </>
   );

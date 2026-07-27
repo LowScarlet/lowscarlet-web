@@ -13,12 +13,16 @@ interface SocialModalProps {
     instagram: string;
     linkedin: string;
     email: string;
+    whatsapp: string;
+    discord?: string;
   };
   onSave: (socials: {
     github: string;
     instagram: string;
     linkedin: string;
     email: string;
+    whatsapp: string;
+    discord: string;
   }) => Promise<void>;
 }
 
@@ -32,6 +36,8 @@ export default function SocialModal({
   const [socialInstagram, setSocialInstagram] = useState(initialSocials.instagram);
   const [socialLinkedin, setSocialLinkedin] = useState(initialSocials.linkedin);
   const [socialEmail, setSocialEmail] = useState(initialSocials.email);
+  const [socialWhatsapp, setSocialWhatsapp] = useState(initialSocials.whatsapp);
+  const [socialDiscord, setSocialDiscord] = useState(initialSocials.discord || "");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [socialError, setSocialError] = useState("");
@@ -43,6 +49,8 @@ export default function SocialModal({
       setSocialInstagram(initialSocials.instagram);
       setSocialLinkedin(initialSocials.linkedin);
       setSocialEmail(initialSocials.email);
+      setSocialWhatsapp(initialSocials.whatsapp);
+      setSocialDiscord(initialSocials.discord || "https://discord.com/users/lowscarlet");
       setSocialError("");
       setSocialSuccess("");
     }
@@ -60,6 +68,8 @@ export default function SocialModal({
         instagram: socialInstagram,
         linkedin: socialLinkedin,
         email: socialEmail,
+        whatsapp: socialWhatsapp,
+        discord: socialDiscord,
       });
       setSocialSuccess("Link media sosial berhasil diperbarui!");
       setTimeout(() => {
@@ -141,6 +151,30 @@ export default function SocialModal({
               value={socialEmail}
               onChange={(e) => setSocialEmail(e.target.value)}
               placeholder="name@email.com"
+              className="w-full bg-neutral-950 border border-neutral-855 rounded-lg px-3 py-2 text-white text-xs placeholder-gray-650 focus:outline-hidden focus:border-blue-500"
+            />
+          </div>
+
+          {/* WHATSAPP */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-400 font-semibold">WhatsApp URL / Number</label>
+            <input
+              type="text"
+              value={socialWhatsapp}
+              onChange={(e) => setSocialWhatsapp(e.target.value)}
+              placeholder="https://wa.me/6281270634992"
+              className="w-full bg-neutral-950 border border-neutral-855 rounded-lg px-3 py-2 text-white text-xs placeholder-gray-650 focus:outline-hidden focus:border-blue-500"
+            />
+          </div>
+
+          {/* DISCORD */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-400 font-semibold">Discord URL / ID Username</label>
+            <input
+              type="text"
+              value={socialDiscord}
+              onChange={(e) => setSocialDiscord(e.target.value)}
+              placeholder="https://discord.com/users/lowscarlet atau lowscarlet"
               className="w-full bg-neutral-950 border border-neutral-855 rounded-lg px-3 py-2 text-white text-xs placeholder-gray-650 focus:outline-hidden focus:border-blue-500"
             />
           </div>

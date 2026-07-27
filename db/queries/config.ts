@@ -48,6 +48,30 @@ export const defaultConfigs = [
     id: "SOCIAL_EMAIL",
     value: "tegarmaulanafahreza.email@gmail.com",
   },
+  {
+    id: "SOCIAL_WHATSAPP",
+    value: "https://wa.me/6281270634992",
+  },
+  {
+    id: "SOCIAL_DISCORD",
+    value: "https://discord.com/users/lowscarlet",
+  },
+  {
+    id: "PROFILE_FULL_NAME",
+    value: "TEGAR MAULANA FAHREZA",
+  },
+  {
+    id: "PROFILE_LOCATION",
+    value: "Pekanbaru, Riau, Indonesia",
+  },
+  {
+    id: "PROFILE_PHONE",
+    value: "+62 812 7063 4992",
+  },
+  {
+    id: "PROFILE_WEBSITE",
+    value: "lowscarlet.my.id",
+  },
 ] as const;
 
 type DefaultConfigs = typeof defaultConfigs;
@@ -130,6 +154,12 @@ export async function getAllConfigs(): Promise<AppConfigMap> {
     SOCIAL_INSTAGRAM: String(mapped.SOCIAL_INSTAGRAM ?? "https://www.instagram.com/lowscarl3t"),
     SOCIAL_LINKEDIN: String(mapped.SOCIAL_LINKEDIN ?? "https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221"),
     SOCIAL_EMAIL: String(mapped.SOCIAL_EMAIL ?? "tegarmaulanafahreza.email@gmail.com"),
+    SOCIAL_WHATSAPP: String(mapped.SOCIAL_WHATSAPP ?? "https://wa.me/6281270634992"),
+    SOCIAL_DISCORD: String(mapped.SOCIAL_DISCORD ?? "https://discord.com/users/lowscarlet"),
+    PROFILE_FULL_NAME: String(mapped.PROFILE_FULL_NAME ?? "TEGAR MAULANA FAHREZA"),
+    PROFILE_LOCATION: String(mapped.PROFILE_LOCATION ?? "Pekanbaru, Riau, Indonesia"),
+    PROFILE_PHONE: String(mapped.PROFILE_PHONE ?? "+62 812 7063 4992"),
+    PROFILE_WEBSITE: String(mapped.PROFILE_WEBSITE ?? "lowscarlet.my.id"),
   };
 }
 

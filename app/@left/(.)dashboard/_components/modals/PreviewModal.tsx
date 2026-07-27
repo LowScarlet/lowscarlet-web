@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { IoWarningOutline } from "react-icons/io5";
+import { useState, useEffect } from "react";
 import Modal from "@/components/utils/Modal";
 import { SiReaddotcv } from "react-icons/si";
-import { cn } from "@/libs/utils";
+import { FaSpinner, FaExternalLinkAlt } from "react-icons/fa";
+import AtsCvContent from "@/components/cv/AtsCvContent";
+import CreativeCvContent from "@/components/cv/CreativeCvContent";
+import Link from "next/link";
 
 interface PreviewModalProps {
   isOpen: boolean;
@@ -18,62 +22,109 @@ export default function PreviewModal({
   pdfUrl,
   pdfTitle,
 }: PreviewModalProps) {
+  const [cvData, setCvData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const isCreativeRoute = pdfUrl === "/cv/creative" || pdfTitle.toLowerCase().includes("creative");
+  const isAtsRoute = pdfUrl === "/cv/ats" || pdfTitle.toLowerCase().includes("ats") || !isCreativeRoute;
+
+  useEffect(() => {
+    if (isOpen) {
+      setLoading(true);
+      setError("");
+      fetch("/api/cv")
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to load CV data");
+          return res.json();
+        })
+        .then((json) => {
+          if (json.success) {
+            setCvData(json.data);
+          } else {
+            throw new Error(json.error || "Failed to load CV data");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err.message || "Failed to load CV data");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [isOpen]);
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={
         <div className="flex items-center space-x-2">
-          <SiReaddotcv className="text-pink-500 text-lg" />
-          <span className="font-bold text-white text-base">Preview: {pdfTitle}</span>
+          <SiReaddotcv className={isCreativeRoute ? "text-cyan-400 text-lg" : "text-pink-500 text-lg"} />
+          <span className="font-bold text-white text-base">
+            {isCreativeRoute ? "Live Creative CV Preview" : "Live ATS CV Preview"}
+          </span>
         </div>
       }
     >
-      <div className="space-y-4 flex flex-col h-[70vh]">
-        {pdfUrl === "/cv-creative.pdf" ? (
-          <div className="flex-1 flex flex-col justify-center items-center text-center p-6 bg-neutral-950/60 border border-neutral-855 rounded-lg space-y-3">
-            <IoWarningOutline className="text-amber-500 text-3xl animate-pulse" />
-            <h3 className="text-white font-semibold text-sm">File CV Creative Belum Di-upload</h3>
-            <p className="text-gray-400 text-[11px] max-w-xs leading-relaxed">
-              Anda belum mengunggah file CV kustom untuk versi Creative. Silakan gunakan tombol <strong>Edit</strong> (pensil) di menu Curriculum Vitae untuk mengunggah file PDF Anda terlebih dahulu.
-            </p>
+      <div className="space-y-4 flex flex-col h-[78vh]">
+        {loading ? (
+          <div className="flex-1 flex flex-col justify-center items-center gap-3 bg-neutral-950/60 rounded-xl border border-neutral-800">
+            <FaSpinner className="animate-spin text-pink-500 text-2xl" />
+            <span className="text-xs text-gray-400 font-medium">Fetching CV Data from Database...</span>
           </div>
-        ) : pdfUrl ? (
-          <>
-            <iframe
-              src={`/api/proxy-pdf?url=${encodeURIComponent(pdfUrl)}`}
-              className="w-full flex-1 rounded-lg border border-neutral-805 bg-neutral-900"
-              title="PDF Preview"
-            />
-            <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-2.5 rounded-lg text-[10px] leading-relaxed font-medium shrink-0">
-              💡 <strong>Tips IDM:</strong> Jika pratinjau tidak muncul dan langsung mengunduh otomatis, hal ini disebabkan oleh software IDM (Internet Download Manager) Anda yang mencegat file PDF. Anda dapat menonaktifkan penanganan file PDF otomatis di pengaturan integrasi IDM Anda untuk melihat pratinjau langsung.
+        ) : error ? (
+          <div className="flex-1 flex justify-center items-center text-xs text-red-400 bg-neutral-950/60 rounded-xl border border-neutral-800 p-4">
+            {error}
+          </div>
+        ) : cvData ? (
+          isCreativeRoute ? (
+            <div className="flex-1 overflow-y-auto bg-slate-400 text-slate-900 p-2 sm:p-4 rounded-xl shadow-xl font-sans text-left">
+              {/* Creative CV Content (Includes Left Sidebar & Right Column with Header) */}
+              <CreativeCvContent
+                profile={cvData.profile}
+                educations={cvData.educations}
+                experiences={cvData.experiences}
+                projects={cvData.projects}
+                certifications={cvData.certifications}
+                skills={cvData.skills}
+              />
             </div>
-          </>
-        ) : (
-          <div className="flex-1 flex justify-center items-center text-xs text-gray-505">
-            No PDF URL selected
-          </div>
-        )}
+          ) : (
+            <div className="flex-1 overflow-y-auto bg-white text-gray-900 p-6 sm:p-8 rounded-xl shadow-xl font-sans text-left space-y-4">
+              {/* Unified ATS CV Component (Header + Content) */}
+              <AtsCvContent
+                profile={cvData.profile}
+                educations={cvData.educations}
+                experiences={cvData.experiences}
+                projects={cvData.projects}
+                certifications={cvData.certifications}
+                skills={cvData.skills}
+              />
+            </div>
+          )
+        ) : null}
 
+        {/* Bottom Actions Bar */}
         <div className="flex gap-3 pt-2 shrink-0">
-          {pdfUrl !== "/cv-creative.pdf" && pdfUrl && (
-            <a
-              href={pdfUrl}
-              download
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 bg-linear-to-r from-pink-500 to-violet-500 text-white text-center font-bold py-2 rounded-lg hover:opacity-90 active:scale-98 transition text-xs flex justify-center items-center gap-1.5"
-            >
-              <span>Download PDF</span>
-            </a>
-          )}
+          <Link
+            href={isCreativeRoute ? "/cv/creative" : "/cv/ats"}
+            target="_blank"
+            className={
+              isCreativeRoute
+                ? "flex-1 bg-linear-to-r from-cyan-600 via-indigo-600 to-blue-600 text-white text-center font-bold py-2 rounded-lg hover:opacity-90 active:scale-98 transition text-xs flex justify-center items-center gap-2 shadow-md"
+                : "flex-1 bg-linear-to-r from-pink-600 via-purple-600 to-violet-600 text-white text-center font-bold py-2 rounded-lg hover:opacity-90 active:scale-98 transition text-xs flex justify-center items-center gap-2 shadow-md"
+            }
+          >
+            <FaExternalLinkAlt size={12} />
+            <span>Open Standalone & Print PDF</span>
+          </Link>
+
           <button
             type="button"
             onClick={onClose}
-            className={cn(
-              "bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-gray-400 font-bold py-2 px-5 rounded-lg hover:text-white active:scale-98 transition text-xs cursor-pointer",
-              pdfUrl === "/cv-creative.pdf" && "flex-1"
-            )}
+            className="bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-gray-400 font-bold py-2 px-5 rounded-lg hover:text-white active:scale-98 transition text-xs cursor-pointer"
           >
             Close
           </button>

@@ -53,6 +53,9 @@ export default function ProjectForm({
   const [pContributors, setPContributors] = useState("");
   const [pStartDate, setPStartDate] = useState("");
   const [pReleaseDate, setPReleaseDate] = useState("");
+  const [pLocation, setPLocation] = useState("");
+  const [pCvSubtitle, setPCvSubtitle] = useState("");
+  const [pCvHighlightsText, setPCvHighlightsText] = useState("");
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [projectError, setProjectError] = useState("");
 
@@ -67,6 +70,9 @@ export default function ProjectForm({
       setUploadError("");
       setPTags(project.tags || []);
       setPTechs(project.techs || []);
+      setPLocation(project.location || "");
+      setPCvSubtitle(project.cvSubtitle || "");
+      setPCvHighlightsText((project.cvHighlights || []).join("\n"));
 
       const githubLink = (project.links || []).find((l: any) => l.icon === "github")?.href || "";
       const demoLink = (project.links || []).find((l: any) => l.icon === "link")?.href || "";
@@ -101,6 +107,9 @@ export default function ProjectForm({
       setPContributors("");
       setPStartDate("");
       setPReleaseDate("");
+      setPLocation("");
+      setPCvSubtitle("");
+      setPCvHighlightsText("");
       setProjectError("");
       setCustomTagInput("");
       setCustomTechInput("");
@@ -180,6 +189,11 @@ export default function ProjectForm({
       .map((c) => c.trim())
       .filter((c) => c.length > 0);
 
+    const cvHighlightsArray = pCvHighlightsText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
     const payload = {
       title: pTitle,
       category: pCategory,
@@ -191,6 +205,9 @@ export default function ProjectForm({
       contributors: contributorsArray,
       startDate: pStartDate ? new Date(pStartDate).toISOString() : null,
       releaseDate: pReleaseDate ? new Date(pReleaseDate).toISOString() : null,
+      location: pLocation || null,
+      cvSubtitle: pCvSubtitle || null,
+      cvHighlights: cvHighlightsArray,
     };
 
     try {
@@ -309,6 +326,59 @@ export default function ProjectForm({
           placeholder="Describe the project... Support Markdown list, headers, etc."
           className="w-full bg-neutral-950 border border-neutral-855 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm placeholder-gray-650 resize-y"
         />
+      </div>
+
+      {/* ATS CV Specific Fields */}
+      <div className="border border-neutral-800/80 rounded-xl p-4 bg-neutral-950/40 space-y-4">
+        <div className="flex justify-between items-center border-b border-neutral-800/50 pb-1.5">
+          <span className="block text-gray-300 text-[11px] font-bold uppercase tracking-wider">
+            ATS CV Details (Optional)
+          </span>
+          <span className="text-[10px] text-pink-400 font-mono">
+            Displayed on generated ATS Resume
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+              Location
+            </label>
+            <input
+              type="text"
+              value={pLocation}
+              onChange={(e) => setPLocation(e.target.value)}
+              placeholder="E.g., Pekanbaru, Indonesia"
+              className="w-full bg-neutral-950 border border-neutral-855 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+              ATS Subtitle / Role
+            </label>
+            <input
+              type="text"
+              value={pCvSubtitle}
+              onChange={(e) => setPCvSubtitle(e.target.value)}
+              placeholder="E.g., Undergraduate Final Project - Web Applications"
+              className="w-full bg-neutral-950 border border-neutral-855 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+            ATS Bullet Points (1 bullet per line)
+          </label>
+          <textarea
+            value={pCvHighlightsText}
+            onChange={(e) => setPCvHighlightsText(e.target.value)}
+            rows={4}
+            placeholder={`Built a cloud-native academic information system...\nImplemented cloud deployment workflows with Railway...`}
+            className="w-full bg-neutral-950 border border-neutral-855 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm placeholder-gray-650 resize-y"
+          />
+        </div>
       </div>
 
       <div className="border border-neutral-800/80 rounded-xl p-4 bg-neutral-950/40 space-y-3">

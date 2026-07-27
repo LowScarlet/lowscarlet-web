@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IoMdClose } from "react-icons/io";
-import { FaRegFolder, FaLock, FaLockOpen } from "react-icons/fa";
+import { FaRegFolder, FaLock, FaLockOpen, FaUserEdit } from "react-icons/fa";
 import { LuExpand } from "react-icons/lu";
 
 interface DashboardHeaderProps {
   isAdmin: boolean;
   onLogout: () => Promise<void>;
+  onManageProfile?: () => void;
 }
 
 export default function DashboardHeader({
   isAdmin,
   onLogout,
+  onManageProfile,
 }: DashboardHeaderProps) {
   const router = useRouter();
 
@@ -25,6 +27,17 @@ export default function DashboardHeader({
       </h1>
 
       <div className="flex items-center space-x-2.5">
+        {isAdmin && onManageProfile && (
+          <button
+            onClick={onManageProfile}
+            className="cursor-pointer text-cyan-400 hover:text-cyan-300 transition-colors duration-200 flex items-center p-1"
+            aria-label="Edit Profile & CV Data"
+            title="Edit Profile & CV Data"
+          >
+            <FaUserEdit className="text-lg" />
+          </button>
+        )}
+
         <button
           onClick={() => {
             if (isAdmin) {
