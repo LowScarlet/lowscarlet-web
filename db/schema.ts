@@ -80,6 +80,7 @@ export const educations = pgTable("educations", {
   endDate: timestamp(),
   thesis: text(),
   relevantCoursework: jsonb().$type<string[]>(),
+  images: jsonb().$type<{ no: number; src: string }[]>(),
   displayOrder: integer().default(0),
   createdAt: timestamp().defaultNow(),
 });
@@ -93,6 +94,7 @@ export const experiences = pgTable("experiences", {
   endDate: timestamp(),
   isCurrent: boolean().default(false),
   highlights: jsonb().$type<string[]>().notNull(),
+  images: jsonb().$type<{ no: number; src: string }[]>(),
   displayOrder: integer().default(0),
   createdAt: timestamp().defaultNow(),
 });
@@ -104,6 +106,30 @@ export const certifications = pgTable("certifications", {
   location: text(),
   issueDate: timestamp(),
   credentialUrl: text(),
+  highlights: jsonb().$type<string[]>(),
+  images: jsonb().$type<{ no: number; src: string }[]>(),
+  displayOrder: integer().default(0),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const volunteers = pgTable("volunteers", {
+  id: uuid().defaultRandom().primaryKey(),
+  organization: text().notNull(),
+  role: text().notNull(),
+  location: text(),
+  startDate: timestamp(),
+  endDate: timestamp(),
+  isCurrent: boolean().default(false),
+  highlights: jsonb().$type<string[]>(),
+  images: jsonb().$type<{ no: number; src: string }[]>(),
+  displayOrder: integer().default(0),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const languages = pgTable("languages", {
+  id: uuid().defaultRandom().primaryKey(),
+  name: text().notNull(),
+  proficiency: text().notNull(),
   displayOrder: integer().default(0),
   createdAt: timestamp().defaultNow(),
 });

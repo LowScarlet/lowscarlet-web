@@ -13,12 +13,125 @@ interface ProfileModalProps {
   onCvDataUpdated: () => void;
 }
 
+function DocImageManager({
+  images,
+  onImagesChange,
+  uploading,
+  setUploading,
+  label = "Foto Dokumentasi",
+}: {
+  images: { no: number; src: string }[];
+  onImagesChange: (newImages: { no: number; src: string }[]) => void;
+  uploading: boolean;
+  setUploading: (val: boolean) => void;
+  label?: string;
+}) {
+  const [manualUrl, setManualUrl] = useState("");
+  const [uploadError, setUploadError] = useState("");
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadError("");
+
+    try {
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+        method: "POST",
+        body: file,
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(errJson.message || "Failed to upload image");
+      }
+
+      const newBlob = await res.json();
+      const nextNo = images.length > 0 ? Math.max(...images.map((i) => i.no || 0)) + 1 : 1;
+      onImagesChange([...images, { no: nextNo, src: newBlob.url }]);
+      e.target.value = "";
+    } catch (err: any) {
+      console.error(err);
+      setUploadError(err.message || "Upload image error");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleAddManualUrl = () => {
+    if (!manualUrl.trim()) return;
+    const nextNo = images.length > 0 ? Math.max(...images.map((i) => i.no || 0)) + 1 : 1;
+    onImagesChange([...images, { no: nextNo, src: manualUrl.trim() }]);
+    setManualUrl("");
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const updated = images.filter((_, idx) => idx !== index);
+    onImagesChange(updated);
+  };
+
+  return (
+    <div className="space-y-2 pt-2 border-t border-neutral-850">
+      <label className="text-[10px] text-gray-400 font-semibold block uppercase">
+        {label} ({images.length})
+      </label>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div>
+          <label className="flex items-center justify-center gap-2 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-cyan-400 text-xs px-3 py-1.5 rounded-lg cursor-pointer transition">
+            {uploading ? <FaSpinner className="animate-spin text-xs" /> : <FaUpload className="text-xs" />}
+            <span>{uploading ? "Uploading..." : "Upload Foto (Vercel Blob)"}</span>
+            <input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} className="hidden" />
+          </label>
+        </div>
+
+        <div className="flex gap-1">
+          <input
+            type="url"
+            value={manualUrl}
+            onChange={(e) => setManualUrl(e.target.value)}
+            placeholder="Atau tempel Link Foto (https://...)"
+            className="flex-1 bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1 text-white text-xs placeholder-gray-600"
+          />
+          <button
+            type="button"
+            onClick={handleAddManualUrl}
+            className="bg-neutral-800 hover:bg-neutral-700 text-cyan-400 px-2.5 py-1 rounded text-xs transition cursor-pointer"
+          >
+            <FaPlus size={10} />
+          </button>
+        </div>
+      </div>
+
+      {uploadError && <div className="text-[10px] text-red-400">{uploadError}</div>}
+
+      {images.length > 0 && (
+        <div className="flex flex-wrap gap-2 pt-1">
+          {images.map((img, idx) => (
+            <div key={idx} className="relative group w-14 h-14 rounded-lg overflow-hidden border border-neutral-800 bg-black">
+              <Image src={img.src} alt={`Doc ${idx + 1}`} fill className="object-cover" unoptimized />
+              <button
+                type="button"
+                onClick={() => handleRemoveImage(idx)}
+                className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-red-400 transition cursor-pointer"
+              >
+                <FaTrash size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProfileModal({
   isOpen,
   onClose,
   onCvDataUpdated,
 }: ProfileModalProps) {
-  const [activeTab, setActiveTab] = useState<"profile" | "educations" | "experiences" | "certifications" | "skills">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "educations" | "experiences" | "certifications" | "skills" | "volunteers" | "languages">("profile");
 
   // CV / Profile Full Data state
   const [loading, setLoading] = useState(false);
@@ -37,6 +150,7 @@ export default function ProfileModal({
   const [whatsapp, setWhatsapp] = useState("");
   const [photoPro, setPhotoPro] = useState("");
   const [photoPas, setPhotoPas] = useState("");
+  const [summary, setSummary] = useState("");
   const [uploadingPro, setUploadingPro] = useState(false);
   const [uploadingPas, setUploadingPas] = useState(false);
 
@@ -51,6 +165,8 @@ export default function ProfileModal({
   const [eduEndDate, setEduEndDate] = useState("");
   const [eduThesis, setEduThesis] = useState("");
   const [eduCourseworkText, setEduCourseworkText] = useState("");
+  const [eduImagesList, setEduImagesList] = useState<{ no: number; src: string }[]>([]);
+  const [eduUploadingImg, setEduUploadingImg] = useState(false);
 
   // Tab 3: Experiences State
   const [experiencesList, setExperiencesList] = useState<any[]>([]);
@@ -62,6 +178,8 @@ export default function ProfileModal({
   const [expEndDate, setExpEndDate] = useState("");
   const [expIsCurrent, setExpIsCurrent] = useState(false);
   const [expHighlightsText, setExpHighlightsText] = useState("");
+  const [expImagesList, setExpImagesList] = useState<{ no: number; src: string }[]>([]);
+  const [expUploadingImg, setExpUploadingImg] = useState(false);
 
   // Tab 4: Certifications State
   const [certificationsList, setCertificationsList] = useState<any[]>([]);
@@ -71,12 +189,38 @@ export default function ProfileModal({
   const [certLocation, setCertLocation] = useState("");
   const [certIssueDate, setCertIssueDate] = useState("");
   const [certCredentialUrl, setCertCredentialUrl] = useState("");
+  const [certHighlightsText, setCertHighlightsText] = useState("");
+  const [certDisplayOrder, setCertDisplayOrder] = useState<number>(0);
+  const [certImagesList, setCertImagesList] = useState<{ no: number; src: string }[]>([]);
+  const [certUploadingImg, setCertUploadingImg] = useState(false);
 
   // Tab 5: Skills State
   const [skillsList, setSkillsList] = useState<any[]>([]);
   const [editingSkill, setEditingSkill] = useState<any | null>(null);
   const [skillCategory, setSkillCategory] = useState("");
   const [skillItemsText, setSkillItemsText] = useState("");
+  const [skillDisplayOrder, setSkillDisplayOrder] = useState<number>(0);
+
+  // Tab 6: Volunteers State
+  const [volunteersList, setVolunteersList] = useState<any[]>([]);
+  const [editingVol, setEditingVol] = useState<any | null>(null);
+  const [volOrganization, setVolOrganization] = useState("");
+  const [volRole, setVolRole] = useState("");
+  const [volLocation, setVolLocation] = useState("");
+  const [volStartDate, setVolStartDate] = useState("");
+  const [volEndDate, setVolEndDate] = useState("");
+  const [volIsCurrent, setVolIsCurrent] = useState(false);
+  const [volHighlightsText, setVolHighlightsText] = useState("");
+  const [volDisplayOrder, setVolDisplayOrder] = useState<number>(0);
+  const [volImagesList, setVolImagesList] = useState<{ no: number; src: string }[]>([]);
+  const [volUploadingImg, setVolUploadingImg] = useState(false);
+
+  // Tab 7: Languages State
+  const [languagesList, setLanguagesList] = useState<any[]>([]);
+  const [editingLang, setEditingLang] = useState<any | null>(null);
+  const [langName, setLangName] = useState("");
+  const [langProficiency, setLangProficiency] = useState("");
+  const [langDisplayOrder, setLangDisplayOrder] = useState<number>(0);
 
   // Fetch full CV data when modal opens
   const fetchCvData = async () => {
@@ -87,7 +231,7 @@ export default function ProfileModal({
       if (!res.ok) throw new Error("Failed to load profile & CV data");
       const json = await res.json();
       if (json.success) {
-        const { profile, educations, experiences, certifications, skills } = json.data;
+        const { profile, educations, experiences, certifications, volunteers, languages, skills } = json.data;
         setFullName(profile.fullName || "");
         setLocation(profile.location || "");
         setPhone(profile.phone || "");
@@ -98,10 +242,13 @@ export default function ProfileModal({
         setWhatsapp(profile.whatsapp || "");
         setPhotoPro(profile.photoPro || "");
         setPhotoPas(profile.photoPas || "");
+        setSummary(profile.summary || "");
 
         setEducationsList(educations || []);
         setExperiencesList(experiences || []);
         setCertificationsList(certifications || []);
+        setVolunteersList(volunteers || []);
+        setLanguagesList(languages || []);
         setSkillsList(skills || []);
       }
     } catch (err: any) {
@@ -135,6 +282,8 @@ export default function ProfileModal({
     setEduEndDate("");
     setEduThesis("");
     setEduCourseworkText("");
+    setEduImagesList([]);
+    setEduUploadingImg(false);
   };
 
   const resetExpForm = () => {
@@ -146,6 +295,8 @@ export default function ProfileModal({
     setExpEndDate("");
     setExpIsCurrent(false);
     setExpHighlightsText("");
+    setExpImagesList([]);
+    setExpUploadingImg(false);
   };
 
   const resetCertForm = () => {
@@ -155,12 +306,38 @@ export default function ProfileModal({
     setCertLocation("");
     setCertIssueDate("");
     setCertCredentialUrl("");
+    setCertHighlightsText("");
+    setCertDisplayOrder(0);
+    setCertImagesList([]);
+    setCertUploadingImg(false);
   };
 
   const resetSkillForm = () => {
     setEditingSkill(null);
     setSkillCategory("");
     setSkillItemsText("");
+    setSkillDisplayOrder(0);
+  };
+
+  const resetVolForm = () => {
+    setEditingVol(null);
+    setVolOrganization("");
+    setVolRole("");
+    setVolLocation("");
+    setVolStartDate("");
+    setVolEndDate("");
+    setVolIsCurrent(false);
+    setVolHighlightsText("");
+    setVolDisplayOrder(0);
+    setVolImagesList([]);
+    setVolUploadingImg(false);
+  };
+
+  const resetLangForm = () => {
+    setEditingLang(null);
+    setLangName("");
+    setLangProficiency("");
+    setLangDisplayOrder(0);
   };
 
   // Upload Blob Photo Handler
@@ -210,6 +387,7 @@ export default function ProfileModal({
         { key: "SOCIAL_WHATSAPP", value: whatsapp },
         { key: "PROFILE_PHOTO_PRO", value: photoPro },
         { key: "PROFILE_PHOTO_PAS", value: photoPas },
+        { key: "PROFILE_SUMMARY", value: summary },
       ];
 
       for (const item of updates) {
@@ -250,6 +428,7 @@ export default function ProfileModal({
       endDate: eduEndDate || null,
       thesis: eduThesis || null,
       relevantCoursework: courseworkArray,
+      images: eduImagesList,
     };
 
     try {
@@ -311,6 +490,7 @@ export default function ProfileModal({
       endDate: expIsCurrent ? null : (expEndDate || null),
       isCurrent: expIsCurrent,
       highlights: highlightsArray,
+      images: expImagesList,
     };
 
     try {
@@ -359,12 +539,20 @@ export default function ProfileModal({
     setSaving(true);
     setError("");
 
+    const highlightsArray = certHighlightsText
+      .split("\n")
+      .map((h) => h.trim())
+      .filter((h) => h.length > 0);
+
     const payload = {
       title: certTitle,
       issuer: certIssuer,
       location: certLocation || null,
       issueDate: certIssueDate || null,
       credentialUrl: certCredentialUrl || null,
+      highlights: highlightsArray,
+      images: certImagesList,
+      displayOrder: Number(certDisplayOrder || 0),
     };
 
     try {
@@ -421,6 +609,7 @@ export default function ProfileModal({
     const payload = {
       category: skillCategory,
       items: itemsArray,
+      displayOrder: Number(skillDisplayOrder || 0),
     };
 
     try {
@@ -463,6 +652,121 @@ export default function ProfileModal({
     }
   };
 
+  // --- SAVE VOLUNTEER (TAB 6) ---
+  const handleSaveVolunteer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+
+    const highlightsArray = volHighlightsText
+      .split("\n")
+      .map((h) => h.trim())
+      .filter((h) => h.length > 0);
+
+    const payload = {
+      organization: volOrganization,
+      role: volRole,
+      location: volLocation || null,
+      startDate: volStartDate ? new Date(volStartDate).toISOString() : null,
+      endDate: volIsCurrent || !volEndDate ? null : new Date(volEndDate).toISOString(),
+      isCurrent: volIsCurrent,
+      highlights: highlightsArray,
+      images: volImagesList,
+      displayOrder: Number(volDisplayOrder || 0),
+    };
+
+    try {
+      const url = editingVol ? `/api/volunteers/${editingVol.id}` : "/api/volunteers";
+      const method = editingVol ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setSuccess(editingVol ? "Volunteer entry updated!" : "Volunteer entry added!");
+        resetVolForm();
+        await fetchCvData();
+        onCvDataUpdated();
+      } else {
+        throw new Error("Failed to save volunteer entry");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Failed to save volunteer entry");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteVolunteer = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this volunteer entry?")) return;
+    try {
+      const res = await fetch(`/api/volunteers/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setSuccess("Volunteer entry deleted!");
+        await fetchCvData();
+        onCvDataUpdated();
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
+  // --- SAVE LANGUAGE (TAB 7) ---
+  const handleSaveLanguage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+
+    const payload = {
+      name: langName,
+      proficiency: langProficiency,
+      displayOrder: Number(langDisplayOrder || 0),
+    };
+
+    try {
+      const url = editingLang ? `/api/languages/${editingLang.id}` : "/api/languages";
+      const method = editingLang ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setSuccess(editingLang ? "Language updated!" : "Language added!");
+        resetLangForm();
+        await fetchCvData();
+        onCvDataUpdated();
+      } else {
+        throw new Error("Failed to save language");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Failed to save language");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteLanguage = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this language entry?")) return;
+    try {
+      const res = await fetch(`/api/languages/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setSuccess("Language deleted!");
+        await fetchCvData();
+        onCvDataUpdated();
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -483,6 +787,8 @@ export default function ProfileModal({
             { id: "experiences", label: "3. Pengalaman" },
             { id: "certifications", label: "4. Sertifikasi" },
             { id: "skills", label: "5. Skill Set" },
+            { id: "volunteers", label: "6. Volunteer" },
+            { id: "languages", label: "7. Bahasa (Languages)" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -747,6 +1053,19 @@ export default function ProfileModal({
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-gray-400 text-xs font-semibold mb-1 uppercase tracking-wider">
+                    Professional Summary (CV Header Summary)
+                  </label>
+                  <textarea
+                    value={summary}
+                    onChange={(e) => setSummary(e.target.value)}
+                    rows={3}
+                    placeholder="Passionate Full Stack Web Developer & Cloud Engineer with experience in building scalable web applications..."
+                    className="w-full bg-neutral-950 border border-neutral-855 rounded-lg px-3 py-2 text-white text-xs placeholder-gray-650 resize-y"
+                  />
+                </div>
+
                 <div className="pt-2">
                   <button
                     type="submit"
@@ -779,7 +1098,14 @@ export default function ProfileModal({
                   {educationsList.map((item) => (
                     <div key={item.id} className="p-3 bg-neutral-950 border border-neutral-850 rounded-lg flex justify-between items-start text-xs">
                       <div>
-                        <div className="font-bold text-white">{item.institution} ({item.location})</div>
+                        <div className="font-bold text-white flex items-center gap-2">
+                          <span>{item.institution} ({item.location})</span>
+                          {item.images && item.images.length > 0 && (
+                            <span className="px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 text-cyan-400 text-[9px] font-mono rounded">
+                              📷 {item.images.length} Foto
+                            </span>
+                          )}
+                        </div>
                         <div className="text-gray-400">{item.degree} {item.gpa ? `• GPA: ${item.gpa}` : ""}</div>
                         <div className="text-[10px] text-gray-500">{item.dateRange}</div>
                       </div>
@@ -796,6 +1122,7 @@ export default function ProfileModal({
                             setEduEndDate(item.endDate ? new Date(item.endDate).toISOString().split("T")[0] : "");
                             setEduThesis(item.thesis || "");
                             setEduCourseworkText((item.relevantCoursework || []).join(", "));
+                            setEduImagesList(item.images || []);
                           }}
                           className="p-1.5 bg-neutral-900 hover:bg-neutral-800 text-cyan-400 rounded cursor-pointer"
                         >
@@ -852,6 +1179,13 @@ export default function ProfileModal({
                     <label className="text-[10px] text-gray-400 font-semibold block uppercase">Coursework (Pisahkan Koma)</label>
                     <input type="text" value={eduCourseworkText} onChange={(e) => setEduCourseworkText(e.target.value)} placeholder="Software Engineering, Cloud Computing, Web Development" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
                   </div>
+                  <DocImageManager
+                    images={eduImagesList}
+                    onImagesChange={setEduImagesList}
+                    uploading={eduUploadingImg}
+                    setUploading={setEduUploadingImg}
+                    label="Foto Dokumentasi Pendidikan"
+                  />
                   <button type="submit" disabled={saving} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 rounded text-xs transition cursor-pointer">
                     {saving ? "Simpan..." : editingEdu ? "Update Pendidikan" : "Simpan Pendidikan"}
                   </button>
@@ -875,7 +1209,14 @@ export default function ProfileModal({
                   {experiencesList.map((item) => (
                     <div key={item.id} className="p-3 bg-neutral-950 border border-neutral-850 rounded-lg flex justify-between items-start text-xs">
                       <div>
-                        <div className="font-bold text-white">{item.company} ({item.location})</div>
+                        <div className="font-bold text-white flex items-center gap-2">
+                          <span>{item.company} ({item.location})</span>
+                          {item.images && item.images.length > 0 && (
+                            <span className="px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 text-cyan-400 text-[9px] font-mono rounded">
+                              📷 {item.images.length} Foto
+                            </span>
+                          )}
+                        </div>
                         <div className="text-gray-400 font-semibold">{item.role}</div>
                         <div className="text-[10px] text-gray-500">{item.dateRange}</div>
                       </div>
@@ -891,6 +1232,7 @@ export default function ProfileModal({
                             setExpEndDate(item.endDate ? new Date(item.endDate).toISOString().split("T")[0] : "");
                             setExpIsCurrent(Boolean(item.isCurrent));
                             setExpHighlightsText((item.highlights || []).join("\n"));
+                            setExpImagesList(item.images || []);
                           }}
                           className="p-1.5 bg-neutral-900 hover:bg-neutral-800 text-cyan-400 rounded cursor-pointer"
                         >
@@ -945,6 +1287,13 @@ export default function ProfileModal({
                     <label className="text-[10px] text-gray-400 font-semibold block uppercase">Bullet Points / Achievements (1 poin per baris)</label>
                     <textarea value={expHighlightsText} onChange={(e) => setExpHighlightsText(e.target.value)} rows={3} placeholder={`Mentored 20+ students...\nGuided beginner students...`} className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
                   </div>
+                  <DocImageManager
+                    images={expImagesList}
+                    onImagesChange={setExpImagesList}
+                    uploading={expUploadingImg}
+                    setUploading={setExpUploadingImg}
+                    label="Foto Dokumentasi Pengalaman Kerja"
+                  />
                   <button type="submit" disabled={saving} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 rounded text-xs transition cursor-pointer">
                     {saving ? "Simpan..." : editingExp ? "Update Pengalaman" : "Simpan Pengalaman"}
                   </button>
@@ -968,9 +1317,26 @@ export default function ProfileModal({
                   {certificationsList.map((item) => (
                     <div key={item.id} className="p-3 bg-neutral-950 border border-neutral-850 rounded-lg flex justify-between items-start text-xs">
                       <div>
-                        <div className="font-bold text-white">{item.title}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white">{item.title}</span>
+                          <span className="px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 text-cyan-400 text-[9px] font-mono rounded">
+                            Urutan #{item.displayOrder ?? 0}
+                          </span>
+                          {item.images && item.images.length > 0 && (
+                            <span className="px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 text-cyan-400 text-[9px] font-mono rounded">
+                              📷 {item.images.length} Foto
+                            </span>
+                          )}
+                        </div>
                         <div className="text-gray-400">{item.issuer} {item.location ? `• ${item.location}` : ""}</div>
                         <div className="text-[10px] text-gray-500">{item.issueDateFormatted}</div>
+                        {item.highlights && item.highlights.length > 0 && (
+                          <ul className="list-disc list-inside text-[11px] text-gray-400 mt-1 space-y-0.5">
+                            {item.highlights.map((h: string, idx: number) => (
+                              <li key={idx}>{h}</li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                       <div className="flex gap-2 shrink-0">
                         <button
@@ -982,6 +1348,9 @@ export default function ProfileModal({
                             setCertLocation(item.location || "");
                             setCertIssueDate(item.issueDate ? new Date(item.issueDate).toISOString().split("T")[0] : "");
                             setCertCredentialUrl(item.credentialUrl || "");
+                            setCertHighlightsText((item.highlights || []).join("\n"));
+                            setCertDisplayOrder(Number(item.displayOrder) || 0);
+                            setCertImagesList(item.images || []);
                           }}
                           className="p-1.5 bg-neutral-900 hover:bg-neutral-800 text-cyan-400 rounded cursor-pointer"
                         >
@@ -1004,8 +1373,8 @@ export default function ProfileModal({
                   <div className="text-xs font-bold text-cyan-400 border-b border-neutral-800 pb-1">
                     {editingCert ? "Edit Sertifikasi" : "+ Tambah Sertifikasi Baru"}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="md:col-span-2">
                       <label className="text-[10px] text-gray-400 font-semibold block uppercase">Nama Sertifikasi / Course *</label>
                       <input type="text" value={certTitle} onChange={(e) => setCertTitle(e.target.value)} required placeholder="AWS DevOps Engineer..." className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
                     </div>
@@ -1013,6 +1382,8 @@ export default function ProfileModal({
                       <label className="text-[10px] text-gray-400 font-semibold block uppercase">Penyelenggara / Issuer *</label>
                       <input type="text" value={certIssuer} onChange={(e) => setCertIssuer(e.target.value)} required placeholder="AWS Training & Certification" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
                     </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     <div>
                       <label className="text-[10px] text-gray-400 font-semibold block uppercase">Lokasi / Mode</label>
                       <input type="text" value={certLocation} onChange={(e) => setCertLocation(e.target.value)} placeholder="Online" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
@@ -1021,11 +1392,26 @@ export default function ProfileModal({
                       <label className="text-[10px] text-gray-400 font-semibold block uppercase">Tanggal Terbit</label>
                       <input type="date" value={certIssueDate} onChange={(e) => setCertIssueDate(e.target.value)} className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
                     </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Urutan Tampilan (Order)</label>
+                      <input type="number" value={certDisplayOrder} onChange={(e) => setCertDisplayOrder(Number(e.target.value))} min={0} placeholder="0" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
                   </div>
                   <div>
                     <label className="text-[10px] text-gray-400 font-semibold block uppercase">Credential / Certificate URL</label>
                     <input type="url" value={certCredentialUrl} onChange={(e) => setCertCredentialUrl(e.target.value)} placeholder="https://..." className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
                   </div>
+                  <div>
+                    <label className="text-[10px] text-gray-400 font-semibold block uppercase">Bullet Points / Highlights (1 poin per baris)</label>
+                    <textarea value={certHighlightsText} onChange={(e) => setCertHighlightsText(e.target.value)} rows={3} placeholder={`Completed 40+ hours of hands-on cloud architecture labs...\nMastered CI/CD deployment pipelines using GitHub Actions...`} className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                  </div>
+                  <DocImageManager
+                    images={certImagesList}
+                    onImagesChange={setCertImagesList}
+                    uploading={certUploadingImg}
+                    setUploading={setCertUploadingImg}
+                    label="Foto Dokumentasi Sertifikat / Pelatihan"
+                  />
                   <button type="submit" disabled={saving} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 rounded text-xs transition cursor-pointer">
                     {saving ? "Simpan..." : editingCert ? "Update Sertifikasi" : "Simpan Sertifikasi"}
                   </button>
@@ -1046,10 +1432,17 @@ export default function ProfileModal({
                       </button>
                     )}
                   </div>
-                  {skillsList.map((item) => (
+                  {[...skillsList]
+                    .sort((a, b) => (Number(a.displayOrder) || 0) - (Number(b.displayOrder) || 0))
+                    .map((item) => (
                     <div key={item.id} className="p-3 bg-neutral-950 border border-neutral-850 rounded-lg flex justify-between items-start text-xs">
                       <div>
-                        <div className="font-bold text-white">{item.category}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white">{item.category}</span>
+                          <span className="px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 text-cyan-400 text-[9px] font-mono rounded">
+                            Urutan #{item.displayOrder ?? 0}
+                          </span>
+                        </div>
                         <div className="text-gray-400 mt-0.5">{(item.items || []).join(", ")}</div>
                       </div>
                       <div className="flex gap-2 shrink-0">
@@ -1059,6 +1452,7 @@ export default function ProfileModal({
                             setEditingSkill(item);
                             setSkillCategory(item.category || "");
                             setSkillItemsText((item.items || []).join(", "));
+                            setSkillDisplayOrder(Number(item.displayOrder) || 0);
                           }}
                           className="p-1.5 bg-neutral-900 hover:bg-neutral-800 text-cyan-400 rounded cursor-pointer"
                         >
@@ -1081,9 +1475,15 @@ export default function ProfileModal({
                   <div className="text-xs font-bold text-cyan-400 border-b border-neutral-800 pb-1">
                     {editingSkill ? "Edit Kategori Skill" : "+ Tambah Kategori Skill Baru"}
                   </div>
-                  <div>
-                    <label className="text-[10px] text-gray-400 font-semibold block uppercase">Nama Kategori *</label>
-                    <input type="text" value={skillCategory} onChange={(e) => setSkillCategory(e.target.value)} required placeholder="Technical / Tools / Concepts / Soft Skills" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="md:col-span-2">
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Nama Kategori *</label>
+                      <input type="text" value={skillCategory} onChange={(e) => setSkillCategory(e.target.value)} required placeholder="Technical / Tools / Concepts / Soft Skills" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Urutan Tampilan (Order)</label>
+                      <input type="number" value={skillDisplayOrder} onChange={(e) => setSkillDisplayOrder(Number(e.target.value))} min={0} placeholder="0" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
                   </div>
                   <div>
                     <label className="text-[10px] text-gray-400 font-semibold block uppercase">Daftar Skill (Pisahkan Koma) *</label>
@@ -1091,6 +1491,202 @@ export default function ProfileModal({
                   </div>
                   <button type="submit" disabled={saving} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 rounded text-xs transition cursor-pointer">
                     {saving ? "Simpan..." : editingSkill ? "Update Kategori Skill" : "Simpan Kategori Skill"}
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* TAB 6: VOLUNTEERS */}
+            {activeTab === "volunteers" && (
+              <div className="space-y-4">
+                {/* List Volunteers */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-300">Daftar Volunteer ({volunteersList.length})</span>
+                    {editingVol && (
+                      <button type="button" onClick={resetVolForm} className="text-[10px] text-cyan-400 hover:underline">
+                        + Tambah Baru
+                      </button>
+                    )}
+                  </div>
+                  {volunteersList.map((item) => (
+                    <div key={item.id} className="p-3 bg-neutral-950 border border-neutral-850 rounded-lg flex justify-between items-start text-xs">
+                      <div>
+                        <div className="font-bold text-white flex items-center gap-2">
+                          <span>{item.role} @ {item.organization}</span>
+                          {item.images && item.images.length > 0 && (
+                            <span className="px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 text-cyan-400 text-[9px] font-mono rounded">
+                              📷 {item.images.length} Foto
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-gray-400">{item.location} • {item.dateRange}</div>
+                        {item.highlights && item.highlights.length > 0 && (
+                          <ul className="list-disc list-inside text-[11px] text-gray-400 mt-1 space-y-0.5">
+                            {item.highlights.map((h: string, idx: number) => (
+                              <li key={idx}>{h}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingVol(item);
+                            setVolOrganization(item.organization || "");
+                            setVolRole(item.role || "");
+                            setVolLocation(item.location || "");
+                            setVolStartDate(item.startDate ? new Date(item.startDate).toISOString().split("T")[0] : "");
+                            setVolEndDate(item.endDate ? new Date(item.endDate).toISOString().split("T")[0] : "");
+                            setVolIsCurrent(Boolean(item.isCurrent));
+                            setVolHighlightsText((item.highlights || []).join("\n"));
+                            setVolDisplayOrder(Number(item.displayOrder) || 0);
+                            setVolImagesList(item.images || []);
+                          }}
+                          className="p-1.5 bg-neutral-900 hover:bg-neutral-800 text-cyan-400 rounded cursor-pointer"
+                        >
+                          <FaEdit size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteVolunteer(item.id)}
+                          className="p-1.5 bg-neutral-900 hover:bg-neutral-800 text-red-400 rounded cursor-pointer"
+                        >
+                          <FaTrash size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Form Add/Edit Volunteer */}
+                <form onSubmit={handleSaveVolunteer} className="p-3 bg-neutral-950/60 border border-neutral-850 rounded-xl space-y-3 pt-3">
+                  <div className="text-xs font-bold text-cyan-400 border-b border-neutral-800 pb-1">
+                    {editingVol ? "Edit Pengalaman Volunteer" : "+ Tambah Volunteer Baru"}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Nama Organisasi / Komunitas *</label>
+                      <input type="text" value={volOrganization} onChange={(e) => setVolOrganization(e.target.value)} required placeholder="Google Developer Student Clubs..." className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Peran / Role *</label>
+                      <input type="text" value={volRole} onChange={(e) => setVolRole(e.target.value)} required placeholder="Lead / Core Team / Event Coordinator..." className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Lokasi</label>
+                      <input type="text" value={volLocation} onChange={(e) => setVolLocation(e.target.value)} placeholder="Pekanbaru, Indonesia" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Urutan Tampilan (Order)</label>
+                      <input type="number" value={volDisplayOrder} onChange={(e) => setVolDisplayOrder(Number(e.target.value))} min={0} placeholder="0" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Tanggal Mulai</label>
+                      <input type="date" value={volStartDate} onChange={(e) => setVolStartDate(e.target.value)} className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Tanggal Selesai</label>
+                      <input type="date" value={volEndDate} onChange={(e) => setVolEndDate(e.target.value)} disabled={volIsCurrent} className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs disabled:opacity-40" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" id="volIsCurrent" checked={volIsCurrent} onChange={(e) => setVolIsCurrent(e.target.checked)} className="rounded text-cyan-500 focus:ring-0 cursor-pointer" />
+                    <label htmlFor="volIsCurrent" className="text-xs text-gray-300 font-medium cursor-pointer">Masih Aktif Sampai Sekarang</label>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-gray-400 font-semibold block uppercase">Bullet Points / Highlights (1 poin per baris)</label>
+                    <textarea value={volHighlightsText} onChange={(e) => setVolHighlightsText(e.target.value)} rows={3} placeholder={`Organized tech workshops for 100+ attendees...\nManaged community social channels and outreach events...`} className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                  </div>
+                  <DocImageManager
+                    images={volImagesList}
+                    onImagesChange={setVolImagesList}
+                    uploading={volUploadingImg}
+                    setUploading={setVolUploadingImg}
+                    label="Foto Dokumentasi Volunteer"
+                  />
+                  <button type="submit" disabled={saving} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 rounded text-xs transition cursor-pointer">
+                    {saving ? "Simpan..." : editingVol ? "Update Volunteer" : "Simpan Volunteer"}
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* TAB 7: LANGUAGES */}
+            {activeTab === "languages" && (
+              <div className="space-y-4">
+                {/* List Languages */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-300">Daftar Bahasa ({languagesList.length})</span>
+                    {editingLang && (
+                      <button type="button" onClick={resetLangForm} className="text-[10px] text-cyan-400 hover:underline">
+                        + Tambah Baru
+                      </button>
+                    )}
+                  </div>
+                  {[...languagesList]
+                    .sort((a, b) => (Number(a.displayOrder) || 0) - (Number(b.displayOrder) || 0))
+                    .map((item) => (
+                    <div key={item.id} className="p-3 bg-neutral-950 border border-neutral-850 rounded-lg flex justify-between items-start text-xs">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white">{item.name}</span>
+                          <span className="px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 text-cyan-400 text-[9px] font-mono rounded">
+                            Urutan #{item.displayOrder ?? 0}
+                          </span>
+                        </div>
+                        <div className="text-gray-400 mt-0.5">{item.proficiency}</div>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingLang(item);
+                            setLangName(item.name || "");
+                            setLangProficiency(item.proficiency || "");
+                            setLangDisplayOrder(Number(item.displayOrder) || 0);
+                          }}
+                          className="p-1.5 bg-neutral-900 hover:bg-neutral-800 text-cyan-400 rounded cursor-pointer"
+                        >
+                          <FaEdit size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLanguage(item.id)}
+                          className="p-1.5 bg-neutral-900 hover:bg-neutral-800 text-red-400 rounded cursor-pointer"
+                        >
+                          <FaTrash size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Form Add/Edit Language */}
+                <form onSubmit={handleSaveLanguage} className="p-3 bg-neutral-950/60 border border-neutral-850 rounded-xl space-y-3 pt-3">
+                  <div className="text-xs font-bold text-cyan-400 border-b border-neutral-800 pb-1">
+                    {editingLang ? "Edit Bahasa" : "+ Tambah Bahasa Baru"}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Nama Bahasa *</label>
+                      <input type="text" value={langName} onChange={(e) => setLangName(e.target.value)} required placeholder="Indonesian / English / Japanese" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Tingkat Kemahiran *</label>
+                      <input type="text" value={langProficiency} onChange={(e) => setLangProficiency(e.target.value)} required placeholder="Native / Professional Working / Conversational" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-gray-400 font-semibold block uppercase">Urutan Tampilan (Order)</label>
+                      <input type="number" value={langDisplayOrder} onChange={(e) => setLangDisplayOrder(Number(e.target.value))} min={0} placeholder="0" className="w-full bg-neutral-950 border border-neutral-855 rounded px-2.5 py-1.5 text-white text-xs" />
+                    </div>
+                  </div>
+                  <button type="submit" disabled={saving} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-1.5 rounded text-xs transition cursor-pointer">
+                    {saving ? "Simpan..." : editingLang ? "Update Bahasa" : "Simpan Bahasa"}
                   </button>
                 </form>
               </div>

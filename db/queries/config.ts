@@ -80,6 +80,10 @@ export const defaultConfigs = [
     id: "PROFILE_PHOTO_PAS",
     value: "",
   },
+  {
+    id: "PROFILE_SUMMARY",
+    value: "Passionate Full Stack Web Developer & Cloud Engineer with experience in building scalable web applications, academic information systems, and point-of-sale solutions.",
+  },
 ] as const;
 
 type DefaultConfigs = typeof defaultConfigs;
@@ -170,6 +174,7 @@ export async function getAllConfigs(): Promise<AppConfigMap> {
     PROFILE_WEBSITE: String(mapped.PROFILE_WEBSITE ?? "lowscarlet.my.id"),
     PROFILE_PHOTO_PRO: String(mapped.PROFILE_PHOTO_PRO ?? ""),
     PROFILE_PHOTO_PAS: String(mapped.PROFILE_PHOTO_PAS ?? ""),
+    PROFILE_SUMMARY: String(mapped.PROFILE_SUMMARY ?? "Passionate Full Stack Web Developer & Cloud Engineer with experience in building scalable web applications, academic information systems, and point-of-sale solutions."),
   };
 }
 

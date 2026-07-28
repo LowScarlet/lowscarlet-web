@@ -1,6 +1,6 @@
 import { asc, desc } from "drizzle-orm";
 import { db } from "..";
-import { certifications, educations, experiences, projects, skills } from "../schema";
+import { certifications, educations, experiences, languages, projects, skills, volunteers } from "../schema";
 import { getAllConfigs } from "./config";
 
 export function formatCvDate(date: Date | null | undefined): string | null {
@@ -43,6 +43,16 @@ export async function getFullCvData() {
     .from(certifications)
     .orderBy(desc(certifications.issueDate), asc(certifications.displayOrder));
 
+  const volunteerList = await db
+    .select()
+    .from(volunteers)
+    .orderBy(desc(volunteers.startDate), asc(volunteers.displayOrder));
+
+  const languageList = await db
+    .select()
+    .from(languages)
+    .orderBy(asc(languages.displayOrder), asc(languages.createdAt));
+
   const skillList = await db
     .select()
     .from(skills)
@@ -60,6 +70,7 @@ export async function getFullCvData() {
       whatsapp: configs.SOCIAL_WHATSAPP,
       photoPro: configs.PROFILE_PHOTO_PRO,
       photoPas: configs.PROFILE_PHOTO_PAS,
+      summary: configs.PROFILE_SUMMARY,
     },
     educations: educationList.map(item => ({
       ...item,
@@ -77,6 +88,11 @@ export async function getFullCvData() {
       ...item,
       issueDateFormatted: formatCvDate(item.issueDate),
     })),
+    volunteers: volunteerList.map(item => ({
+      ...item,
+      dateRange: formatCvDateRange(item.startDate, item.endDate, item.isCurrent),
+    })),
+    languages: languageList,
     skills: skillList,
   };
 }

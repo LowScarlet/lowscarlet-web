@@ -11,6 +11,7 @@ export interface AtsCvProfile {
   whatsapp?: string;
   photoPro?: string;
   photoPas?: string;
+  summary?: string;
 }
 
 export interface AtsEducationItem {
@@ -50,6 +51,22 @@ export interface AtsCertificationItem {
   issuer: string;
   location: string | null;
   issueDateFormatted: string | null;
+  highlights?: string[] | null;
+}
+
+export interface AtsVolunteerItem {
+  id: string;
+  organization: string;
+  role: string;
+  location: string | null;
+  dateRange: string;
+  highlights?: string[] | null;
+}
+
+export interface AtsLanguageItem {
+  id: string;
+  name: string;
+  proficiency: string;
 }
 
 export interface AtsSkillItem {
@@ -64,6 +81,8 @@ interface AtsCvContentProps {
   experiences: AtsExperienceItem[];
   projects: AtsProjectItem[];
   certifications: AtsCertificationItem[];
+  volunteers?: AtsVolunteerItem[];
+  languages?: AtsLanguageItem[];
   skills: AtsSkillItem[];
 }
 
@@ -83,16 +102,18 @@ export default function AtsCvContent({
   experiences,
   projects,
   certifications,
+  volunteers = [],
+  languages = [],
   skills,
 }: AtsCvContentProps) {
   const whatsappUrl = profile?.whatsapp ? getFullUrl(profile.whatsapp) : null;
 
   return (
-    <div className="w-full max-w-[210mm] aspect-[210/297] print:aspect-auto print:w-full mx-auto space-y-5 text-gray-900 font-sans overflow-y-auto">
+    <div className="w-full max-w-[210mm] min-h-[297mm] print:min-h-0 print:w-full mx-auto space-y-5 text-gray-900 font-sans">
       {/* Inline ATS Header */}
       {profile && (
         <header className="text-center mb-6 border-b border-gray-200 pb-4 print:border-b-0 print:pb-2">
-          <h1 className="text-2xl font-bold tracking-wide uppercase text-gray-900 mb-1">
+          <h1 className="text-lg font-bold tracking-wide uppercase text-gray-900 mb-1">
             {profile.fullName}
           </h1>
           <div className="text-xs text-gray-700 space-x-1.5 flex flex-wrap justify-center items-center gap-y-1">
@@ -124,6 +145,15 @@ export default function AtsCvContent({
             </a>
           </div>
         </header>
+      )}
+
+      {/* Professional Summary Section */}
+      {profile?.summary && (
+        <section className="mb-4">
+          <p className="text-xs text-gray-800 leading-relaxed text-justify">
+            {profile.summary}
+          </p>
+        </section>
       )}
 
       {/* Education Section */}
@@ -230,17 +260,57 @@ export default function AtsCvContent({
           <h2 className="text-sm font-bold text-center uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 mb-2">
             Certifications & Training
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {certifications.map((cert) => (
-              <div key={cert.id} className="flex justify-between items-baseline text-xs">
-                <div>
-                  <span className="font-bold text-gray-900">{cert.title}</span>
-                  <span className="text-gray-700 ml-2 font-medium">({cert.issuer})</span>
+              <div key={cert.id} className="space-y-0.5">
+                <div className="flex justify-between items-baseline text-xs">
+                  <div>
+                    <span className="font-bold text-gray-900">{cert.title}</span>
+                    <span className="text-gray-700 ml-2 font-medium">({cert.issuer})</span>
+                  </div>
+                  <div className="text-right text-gray-800 font-medium ml-4 shrink-0">
+                    <span>{cert.location ? `${cert.location}, ` : ""}</span>
+                    <span className="ml-1">{cert.issueDateFormatted}</span>
+                  </div>
                 </div>
-                <div className="text-right text-gray-800 font-medium ml-4 shrink-0">
-                  <span>{cert.location ? `${cert.location} ` : ""}</span>
-                  <span className="ml-1">{cert.issueDateFormatted}</span>
+                {cert.highlights && cert.highlights.length > 0 && (
+                  <ul className="list-disc list-inside text-xs text-gray-700 space-y-0.5 leading-relaxed pl-1">
+                    {cert.highlights.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Volunteer Experience Section */}
+      {volunteers.length > 0 && (
+        <section className="mb-5">
+          <h2 className="text-sm font-bold text-center uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 mb-2">
+            Volunteer Experience
+          </h2>
+          <div className="space-y-3">
+            {volunteers.map((vol) => (
+              <div key={vol.id} className="space-y-1">
+                <div className="flex justify-between items-baseline">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900">
+                    {vol.role} <span className="font-semibold text-gray-700">@ {vol.organization}</span>
+                  </h3>
+                  <div className="text-right text-xs text-gray-800 font-medium ml-4 shrink-0">
+                    <span>{vol.location ? `${vol.location}, ` : ""}</span>
+                    <span>{vol.dateRange}</span>
+                  </div>
                 </div>
+                {vol.highlights && vol.highlights.length > 0 && (
+                  <ul className="list-disc list-inside text-xs text-gray-700 space-y-0.5 leading-relaxed pl-1">
+                    {vol.highlights.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </div>
@@ -249,7 +319,7 @@ export default function AtsCvContent({
 
       {/* Skill & Interests Section */}
       {skills.length > 0 && (
-        <section className="mb-2">
+        <section className="mb-3">
           <h2 className="text-sm font-bold text-center uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 mb-2">
             Skill & Interests
           </h2>
@@ -258,6 +328,23 @@ export default function AtsCvContent({
               <div key={skill.id} className="text-[11px] text-gray-800">
                 <span className="font-bold text-gray-900">{skill.category}: </span>
                 <span>{skill.items.join(", ")}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Languages Section */}
+      {languages.length > 0 && (
+        <section className="mb-2">
+          <h2 className="text-sm font-bold text-center uppercase tracking-wider text-gray-900 border-b border-gray-300 pb-0.5 mb-2">
+            Languages
+          </h2>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+            {languages.map((lang) => (
+              <div key={lang.id} className="text-[11px] text-gray-800">
+                <span className="font-bold text-gray-900">{lang.name}: </span>
+                <span className="text-gray-700">{lang.proficiency}</span>
               </div>
             ))}
           </div>

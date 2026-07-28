@@ -35,6 +35,8 @@ export async function PATCH(
         location: data.location,
         issueDate: data.issueDate ? new Date(data.issueDate) : null,
         credentialUrl: data.credentialUrl,
+        highlights: data.highlights || [],
+        images: data.images || [],
         displayOrder: Number(data.displayOrder || 0),
       })
       .where(eq(certifications.id, id))

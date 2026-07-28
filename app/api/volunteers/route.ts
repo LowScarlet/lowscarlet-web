@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { certifications } from "@/db/schema";
+import { volunteers } from "@/db/schema";
 import { asc, desc } from "drizzle-orm";
 import { cookies } from "next/headers";
 import crypto from "crypto";
@@ -19,12 +19,12 @@ export async function GET() {
   try {
     const result = await db
       .select()
-      .from(certifications)
-      .orderBy(desc(certifications.issueDate), asc(certifications.displayOrder));
+      .from(volunteers)
+      .orderBy(desc(volunteers.startDate), asc(volunteers.displayOrder));
     return NextResponse.json(result);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Failed to fetch certifications" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to fetch volunteer data" }, { status: 500 });
   }
 }
 
@@ -36,12 +36,13 @@ export async function POST(req: Request) {
 
     const data = await req.json();
 
-    const created = await db.insert(certifications).values({
-      title: data.title,
-      issuer: data.issuer,
+    const created = await db.insert(volunteers).values({
+      organization: data.organization,
+      role: data.role,
       location: data.location || null,
-      issueDate: data.issueDate ? new Date(data.issueDate) : null,
-      credentialUrl: data.credentialUrl || null,
+      startDate: data.startDate ? new Date(data.startDate) : null,
+      endDate: data.endDate ? new Date(data.endDate) : null,
+      isCurrent: Boolean(data.isCurrent),
       highlights: data.highlights || [],
       images: data.images || [],
       displayOrder: Number(data.displayOrder || 0),
@@ -50,6 +51,6 @@ export async function POST(req: Request) {
     return NextResponse.json(created[0]);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Failed to create certification" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to create volunteer entry" }, { status: 500 });
   }
 }

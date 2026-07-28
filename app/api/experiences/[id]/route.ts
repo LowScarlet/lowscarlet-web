@@ -37,6 +37,7 @@ export async function PATCH(
         endDate: data.endDate ? new Date(data.endDate) : null,
         isCurrent: Boolean(data.isCurrent),
         highlights: data.highlights,
+        images: data.images || [],
         displayOrder: Number(data.displayOrder || 0),
       })
       .where(eq(experiences.id, id))

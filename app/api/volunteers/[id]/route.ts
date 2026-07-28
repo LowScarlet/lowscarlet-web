@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { educations } from "@/db/schema";
+import { volunteers } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import crypto from "crypto";
@@ -28,26 +28,25 @@ export async function PATCH(
     const data = await req.json();
 
     const updated = await db
-      .update(educations)
+      .update(volunteers)
       .set({
-        institution: data.institution,
+        organization: data.organization,
+        role: data.role,
         location: data.location,
-        degree: data.degree,
-        gpa: data.gpa,
         startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
-        thesis: data.thesis,
-        relevantCoursework: data.relevantCoursework,
+        isCurrent: Boolean(data.isCurrent),
+        highlights: data.highlights || [],
         images: data.images || [],
         displayOrder: Number(data.displayOrder || 0),
       })
-      .where(eq(educations.id, id))
+      .where(eq(volunteers.id, id))
       .returning();
 
     return NextResponse.json(updated[0]);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Failed to update education" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to update volunteer entry" }, { status: 500 });
   }
 }
 
@@ -61,10 +60,10 @@ export async function DELETE(
     }
 
     const { id } = await context.params;
-    await db.delete(educations).where(eq(educations.id, id));
+    await db.delete(volunteers).where(eq(volunteers.id, id));
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ message: "Failed to delete education" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to delete volunteer entry" }, { status: 500 });
   }
 }

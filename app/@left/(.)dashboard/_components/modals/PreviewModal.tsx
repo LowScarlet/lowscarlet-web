@@ -88,6 +88,8 @@ export default function PreviewModal({
                 experiences={cvData.experiences}
                 projects={cvData.projects}
                 certifications={cvData.certifications}
+                volunteers={cvData.volunteers}
+                languages={cvData.languages}
                 skills={cvData.skills}
               />
             </div>
@@ -100,6 +102,8 @@ export default function PreviewModal({
                 experiences={cvData.experiences}
                 projects={cvData.projects}
                 certifications={cvData.certifications}
+                volunteers={cvData.volunteers}
+                languages={cvData.languages}
                 skills={cvData.skills}
               />
             </div>

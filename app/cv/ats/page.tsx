@@ -2,12 +2,32 @@ import { getFullCvData } from "@/db/queries/cv";
 import Link from "next/link";
 import { FaDownload, FaArrowLeft } from "react-icons/fa";
 import AtsCvContent from "@/components/cv/AtsCvContent";
+import { Metadata } from "next";
 
 export const revalidate = 0; // Always fresh from DB
 
+function getFormattedDate(): string {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getFullCvData();
+  const dateStr = getFormattedDate();
+  const title = `CV_ATS_${data.profile.fullName}_${dateStr}`;
+  return {
+    title,
+  };
+}
+
 export default async function AtsCvPage() {
   const data = await getFullCvData();
-  const { profile, educations, experiences, projects, certifications, skills } = data;
+  const { profile, educations, experiences, projects, certifications, volunteers, languages, skills } = data;
+  const dateStr = getFormattedDate();
+  const pageTitle = `CV_ATS_${profile.fullName}_${dateStr}`;
 
   return (
     <div className="min-h-screen bg-neutral-900 py-8 px-4 print:bg-white print:py-0 print:px-0">
@@ -33,7 +53,7 @@ export default async function AtsCvPage() {
       </div>
 
       {/* ATS CV Document Paper Container */}
-      <div className="max-w-[210mm] w-full aspect-[210/297] print:aspect-auto print:w-full mx-auto bg-white text-gray-900 p-6 sm:p-10 shadow-2xl rounded-sm font-sans leading-relaxed print:p-0 print:shadow-none print:max-w-none">
+      <div className="max-w-[210mm] w-full min-h-[297mm] print:min-h-0 print:w-full mx-auto bg-white text-gray-900 p-6 sm:p-10 shadow-2xl rounded-sm font-sans leading-relaxed print:p-0 print:shadow-none print:max-w-none">
         {/* Render Unified ATS CV Component (Header + Content) */}
         <AtsCvContent
           profile={profile}
@@ -41,14 +61,17 @@ export default async function AtsCvPage() {
           experiences={experiences}
           projects={projects}
           certifications={certifications}
+          volunteers={volunteers}
+          languages={languages}
           skills={skills}
         />
       </div>
 
-      {/* Print script helper */}
+      {/* Dynamic document title & print script helper */}
       <script
         dangerouslySetInnerHTML={{
           __html: `
+            document.title = ${JSON.stringify(pageTitle)};
             document.getElementById('print-btn')?.addEventListener('click', function() {
               window.print();
             });

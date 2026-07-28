@@ -45,6 +45,7 @@ export async function POST(req: Request) {
       endDate: data.endDate ? new Date(data.endDate) : null,
       thesis: data.thesis || null,
       relevantCoursework: data.relevantCoursework || [],
+      images: data.images || [],
       displayOrder: Number(data.displayOrder || 0),
     }).returning();
 
