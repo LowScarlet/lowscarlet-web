@@ -274,7 +274,7 @@ export default function BrandBackground() {
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-[#101010] select-none"
+      className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-[#101010] select-none print:hidden"
     >
       {/* Radial vignette mask in center */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#101010_85%)] z-10 pointer-events-none" />

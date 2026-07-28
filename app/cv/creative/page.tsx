@@ -30,7 +30,7 @@ export default async function CreativeCvPage() {
   const pageTitle = `CV_CREATIVE_${profile.fullName}_${dateStr}`;
 
   return (
-    <div className="min-h-screen bg-slate-400 py-8 px-4 sm:px-8 print:bg-white print:py-0 print:px-0 font-sans leading-relaxed">
+    <div className="min-h-screen bg-slate-400 py-8 px-4 sm:px-8 print:bg-white print:py-0 print:px-0 print:m-0 print:min-h-0 print:w-full font-sans leading-relaxed">
       {/* Top Controls Bar (Hidden during print) */}
       <div className="max-w-5xl mx-auto mb-6 flex justify-between items-center print:hidden">
         <Link
@@ -53,7 +53,7 @@ export default async function CreativeCvPage() {
       </div>
 
       {/* Creative CV Document Paper Container */}
-      <div className="max-w-[210mm] w-full min-h-[297mm] print:min-h-0 print:w-full mx-auto shadow-2xl rounded-sm print:shadow-none print:max-w-none">
+      <div className="max-w-[210mm] w-full min-h-[297mm] print:min-h-0 print:w-full mx-auto shadow-2xl rounded-sm print:shadow-none print:border-none print:max-w-none print:bg-white print:p-6 print:m-0">
         {/* Render Modular Creative Content Body (includes Sidebar & Main Column) */}
         <CreativeCvContent
           profile={profile}

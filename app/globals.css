@@ -27,6 +27,7 @@
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -36,6 +37,7 @@
   0% {
     transform: translateX(-50%);
   }
+
   100% {
     transform: translateX(0%);
   }
@@ -57,7 +59,55 @@
 
 /* Hide default OS cursor on desktop pointer devices */
 @media (hover: hover) and (pointer: fine) {
-  html, body, a, button, input, select, textarea, [role="button"], .cursor-pointer {
+
+  html,
+  body,
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  .cursor-pointer {
     cursor: none !important;
+  }
+}
+
+/* Print styles for clean PDF export without background branding, dark margins, overlays, or invisible text */
+@media print {
+
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html,
+  body,
+  main,
+  .min-h-screen {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Preserve sidebar gray background for Creative CV */
+  .bg-slate-200 {
+    background-color: #e2e8f0 !important;
+  }
+
+  .print\:hidden,
+  [aria-hidden="true"].fixed {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 0mm;
   }
 }

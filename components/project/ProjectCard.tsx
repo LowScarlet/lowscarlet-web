@@ -10,9 +10,10 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiLink, FiCheck } from "react-icons/fi";
 
 type ProjectProps = {
+  id?: string;
   images: string[];
   title: string;
   description: string;
@@ -67,6 +68,7 @@ const slideVariants = {
 };
 
 export default function ProjectCard({
+  id,
   images = [],
   title,
   description,
@@ -82,6 +84,17 @@ export default function ProjectCard({
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window === "undefined") return;
+    const projectUrl = id ? `${window.location.origin}/projects/id/${id}` : window.location.href;
+    navigator.clipboard.writeText(projectUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const MAX_LENGTH = 180;
   const isLong = description.length > MAX_LENGTH;
@@ -211,7 +224,13 @@ export default function ProjectCard({
             variants={item}
             className="mt-4 font-bold text-white text-xl"
           >
-            {title}
+            {id ? (
+              <Link href={`/projects/id/${id}`} scroll={false} className="hover:text-cyan-400 transition cursor-pointer">
+                {title}
+              </Link>
+            ) : (
+              title
+            )}
           </motion.h1>
 
           <motion.div variants={item} className="flex flex-wrap gap-2 mt-2">
@@ -307,7 +326,7 @@ export default function ProjectCard({
           {/* LINKS */}
           <motion.div
             variants={item}
-            className="flex gap-3 mt-6 py-2 overflow-x-auto"
+            className="flex gap-3 mt-6 py-2 overflow-x-auto items-center"
           >
             {links.map(({ href, icon: Icon }, i) => (
               <Link
@@ -320,6 +339,25 @@ export default function ProjectCard({
                 <Icon className="text-2xl" />
               </Link>
             ))}
+
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              aria-label="Copy project link"
+              title={copied ? "Link copied!" : "Copy project link"}
+              className="flex justify-center items-center bg-neutral-50 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-900 px-3 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 transition cursor-pointer relative group"
+            >
+              {copied ? (
+                <FiCheck className="text-2xl text-emerald-400" />
+              ) : (
+                <FiLink className="text-2xl" />
+              )}
+              {copied && (
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-neutral-900 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded border border-neutral-800 whitespace-nowrap shadow-md">
+                  Copied!
+                </span>
+              )}
+            </button>
           </motion.div>
 
           {/* DATE */}

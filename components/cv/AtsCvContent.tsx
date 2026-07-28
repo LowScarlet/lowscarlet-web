@@ -232,7 +232,14 @@ export default function AtsCvContent({
             {projects.map((proj) => (
               <div key={proj.id}>
                 <div className="flex justify-between items-baseline text-xs font-bold text-gray-900">
-                  <span>{proj.title}</span>
+                  <a
+                    href={`/projects/id/${proj.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline text-gray-900 font-bold transition cursor-pointer"
+                  >
+                    {proj.title}
+                  </a>
                   <span>{proj.location || "Online"}</span>
                 </div>
                 <div className="flex justify-between items-baseline text-xs text-gray-800 font-semibold mb-1">

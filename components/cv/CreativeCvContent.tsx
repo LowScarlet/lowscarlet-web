@@ -38,7 +38,7 @@ export default function CreativeCvContent({
   const whatsappUrl = profile.whatsapp ? getFullUrl(profile.whatsapp) : null;
 
   return (
-    <div className="w-full max-w-[210mm] min-h-[297mm] print:min-h-0 print:w-full mx-auto grid grid-cols-12 rounded-none border border-slate-300 bg-white text-slate-900 shadow-xl font-sans text-left">
+    <div className="w-full max-w-[210mm] min-h-[297mm] print:min-h-0 print:w-full mx-auto grid grid-cols-12 rounded-none border border-slate-300 print:border-none print:shadow-none bg-white text-slate-900 shadow-xl font-sans text-left">
       {/* ================= LEFT SIDEBAR COLUMN (Grey Background) ================= */}
       <div className="col-span-4 bg-slate-200 p-4 sm:p-6 space-y-4 border-r border-slate-300 text-slate-800">
         {/* Photo Container */}
@@ -297,7 +297,14 @@ export default function CreativeCvContent({
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                       <div className="flex items-center gap-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                          {proj.title}
+                          <a
+                            href={`/projects/id/${proj.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:underline text-slate-900 transition cursor-pointer"
+                          >
+                            {proj.title}
+                          </a>
                         </h3>
                         {proj.category && (
                           <span className="px-1.5 py-0.5 bg-slate-200 text-slate-800 text-[9px] font-bold uppercase rounded-xs">

@@ -67,7 +67,13 @@ export function ProjectsSkeleton({ count = 2 }: { count?: number }) {
   );
 }
 
-export default function Projects({ category = "webs" }: { category?: string }) {
+export default function Projects({
+  category = "webs",
+  projectId,
+}: {
+  category?: string;
+  projectId?: string;
+}) {
   const [projectList, setProjectList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -76,12 +82,16 @@ export default function Projects({ category = "webs" }: { category?: string }) {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/projects?category=${category}`);
+        const url = projectId ? `/api/projects/${projectId}` : `/api/projects?category=${category}`;
+        const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
 
-        const mappedData = data.map(mapProjectFromDb);
-        setProjectList(mappedData);
+        if (projectId) {
+          setProjectList(data ? [mapProjectFromDb(data)] : []);
+        } else {
+          setProjectList(data.map(mapProjectFromDb));
+        }
       } catch (e) {
         console.error(e);
         setError(true);
@@ -91,7 +101,7 @@ export default function Projects({ category = "webs" }: { category?: string }) {
     };
 
     fetchProjects();
-  }, [category]);
+  }, [category, projectId]);
 
   if (loading) {
     return <ProjectsSkeleton count={2} />;

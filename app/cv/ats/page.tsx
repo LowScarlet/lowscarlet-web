@@ -30,7 +30,7 @@ export default async function AtsCvPage() {
   const pageTitle = `CV_ATS_${profile.fullName}_${dateStr}`;
 
   return (
-    <div className="min-h-screen bg-neutral-900 py-8 px-4 print:bg-white print:py-0 print:px-0">
+    <div className="min-h-screen bg-neutral-900 py-8 px-4 print:bg-white print:py-0 print:px-0 print:m-0 print:min-h-0 print:w-full">
       {/* Top Controls Bar (Hidden during print) */}
       <div className="max-w-[800px] mx-auto mb-6 flex justify-between items-center print:hidden">
         <Link
@@ -53,7 +53,7 @@ export default async function AtsCvPage() {
       </div>
 
       {/* ATS CV Document Paper Container */}
-      <div className="max-w-[210mm] w-full min-h-[297mm] print:min-h-0 print:w-full mx-auto bg-white text-gray-900 p-6 sm:p-10 shadow-2xl rounded-sm font-sans leading-relaxed print:p-0 print:shadow-none print:max-w-none">
+      <div className="max-w-[210mm] w-full min-h-[297mm] print:min-h-0 print:w-full mx-auto bg-white text-gray-900 p-6 sm:p-10 shadow-2xl rounded-sm font-sans leading-relaxed print:p-8 print:shadow-none print:border-none print:max-w-none print:bg-white print:text-black print:m-0">
         {/* Render Unified ATS CV Component (Header + Content) */}
         <AtsCvContent
           profile={profile}

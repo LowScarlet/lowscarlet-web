@@ -118,7 +118,7 @@ export default function CustomCursor() {
       <div
         ref={dotRef}
         aria-hidden="true"
-        className={`fixed top-0 left-0 w-2.5 h-2.5 bg-pink-500 rounded-full pointer-events-none z-[99999] shadow-[0_0_10px_#ec4899] transition-opacity duration-200 ${
+        className={`fixed top-0 left-0 w-2.5 h-2.5 bg-pink-500 rounded-full pointer-events-none z-[99999] shadow-[0_0_10px_#ec4899] transition-opacity duration-200 print:hidden ${
           isVisible ? "opacity-100" : "opacity-0"
         }`}
         style={{ willChange: "transform" }}
@@ -128,7 +128,7 @@ export default function CustomCursor() {
       <div
         ref={ringRef}
         aria-hidden="true"
-        className={`fixed top-0 left-0 w-8 h-8 rounded-full border border-pink-500/60 bg-pink-500/5 shadow-[0_0_10px_rgba(236,72,153,0.2)] pointer-events-none z-[99998] transition-colors duration-200 [&.ring-hover]:border-pink-500/90 [&.ring-hover]:bg-pink-500/20 [&.ring-hover]:shadow-[0_0_15px_rgba(236,72,153,0.5)] ${
+        className={`fixed top-0 left-0 w-8 h-8 rounded-full border border-pink-500/60 bg-pink-500/5 shadow-[0_0_10px_rgba(236,72,153,0.2)] pointer-events-none z-[99998] transition-colors duration-200 [&.ring-hover]:border-pink-500/90 [&.ring-hover]:bg-pink-500/20 [&.ring-hover]:shadow-[0_0_15px_rgba(236,72,153,0.5)] print:hidden ${
           isVisible ? "opacity-100" : "opacity-0"
         }`}
         style={{ willChange: "transform" }}
