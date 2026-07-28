@@ -40,7 +40,7 @@ export default function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", duration: 0.35 }}
-            className="z-10 relative w-full max-w-md md:max-w-2xl lg:max-w-3xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl bg-[#121212]/95 border border-neutral-800/80 shadow-2xl backdrop-blur-lg"
+            className="z-10 relative w-full max-w-md md:max-w-2xl lg:max-w-3xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl bg-[#121212] border border-neutral-800/80 shadow-2xl"
           >
             {/* Glow Header */}
             <div className={`absolute top-0 left-0 right-0 h-[3px] z-20 ${glowClass}`} />

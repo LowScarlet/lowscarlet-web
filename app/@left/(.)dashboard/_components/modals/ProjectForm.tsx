@@ -9,6 +9,7 @@ import { cn } from "@/libs/utils";
 
 import { project_type } from "@/components/utils/ProjectType";
 import { techs } from "@/components/utils/Techs";
+import { compressImage } from "@/libs/imageCompressor";
 
 interface ProjectFormProps {
   project: any; // null for add, object for edit
@@ -429,9 +430,12 @@ export default function ProjectForm({
                 const uploaded = [...pImagesList];
                 for (let i = 0; i < files.length; i++) {
                   const file = files[i];
-                  const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+                  const compressedBlob = await compressImage(file, 1400, 0.85);
+                  const webpFilename = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+
+                  const res = await fetch(`/api/upload?filename=${encodeURIComponent(webpFilename)}`, {
                     method: "POST",
-                    body: file,
+                    body: compressedBlob,
                   });
                   if (!res.ok) {
                     const errData = await res.json();
