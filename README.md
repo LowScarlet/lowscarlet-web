@@ -1,37 +1,37 @@
-# 🌟 LowScarlet — Personal Portfolio & Visitor Social Hub
+# LowScarlet — Personal Portfolio & Visitor Social Hub
 
 > A modern, interactive, and visually stunning personal developer portfolio built with Next.js 16 (App Router), Tailwind CSS v4, Framer Motion, and Neon PostgreSQL + Drizzle ORM.
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
-### 🏠 Homepage Overview
+### Homepage Overview
 ![Homepage View](public/screenshots/homepage.png)
 
-### 💬 Visitor Social Center Drawer (`/social`)
+### Visitor Social Center Drawer (`/social`)
 ![Visitor Social Center](public/screenshots/social.png)
 
-### 📂 Featured Projects Panel (`/projects`)
+### Featured Projects Panel (`/projects`)
 ![Featured Projects](public/screenshots/projects.png)
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-- **⚡ Next.js Parallel & Intercepting Routes**: Instant side-drawer modals (`@right/(.)social` & `@right/(.)projects`) with seamless routing and backdrop blur animations.
-- **💬 Interactive Visitor Social Center**:
+- **Next.js Parallel & Intercepting Routes**: Instant side-drawer modals (`@right/(.)social` & `@right/(.)projects`) with seamless routing and backdrop blur animations.
+- **Interactive Visitor Social Center**:
   - Global page likes counter with instant optimistic updates.
   - Paginated comment feed with timestamp formatting and guest/custom display name modes.
   - Adorable sleeping cat animation (`cute-cat-sleep.gif`) sitting on the comment area.
   - Admin moderation capability for comment deletion.
-- **📂 Categorized Projects Showcase**: Filterable view for Web Applications, Games, and Digital Products.
-- **🎨 Modern Dark Aesthetic**: Curated color gradients, sleek dark mode backdrop, custom animated typewriting hints, and pixel art accents.
-- **📱 Fully Responsive**: Custom drawer physics tailored for both mobile bottom sheets and desktop side panels.
+- **Categorized Projects Showcase**: Filterable view for Web Applications, Games, and Digital Products.
+- **Modern Dark Aesthetic**: Curated color gradients, sleek dark mode backdrop, custom animated typewriting hints, and pixel art accents.
+- **Fully Responsive**: Custom drawer physics tailored for both mobile bottom sheets and desktop side panels.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Category | Technology |
 | :--- | :--- |
@@ -44,7 +44,7 @@
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -91,7 +91,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ---
 
-## 📜 Available Scripts
+## Available Scripts
 
 - `npm run dev` — Starts the local Next.js development server.
 - `npm run build` — Builds the production application.
@@ -100,7 +100,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ---
 
-## 👤 Author
+## Author
 
 **Tegar Maulana Fahreza (LowScarlet)**
 - **Website**: [https://lowscarlet.my.id](https://lowscarlet.my.id)
@@ -108,6 +108,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ---
 
-## 📄 License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).

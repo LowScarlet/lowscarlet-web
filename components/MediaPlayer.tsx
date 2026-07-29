@@ -10,7 +10,7 @@ export default function MediaPlayer() {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const START_TIME = 10; // ⬅️ mulai dari detik 10
+  const START_TIME = 10; // mulai dari detik 10
 
   const togglePlay = () => {
     if (!audioRef.current) return;
