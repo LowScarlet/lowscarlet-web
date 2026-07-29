@@ -23,7 +23,7 @@ export async function GET(req: Request) {
 
     let query = db.select().from(projects);
 
-    if (category) {
+    if (category && category !== "all") {
       query = query.where(eq(projects.category, category)) as any;
     }
 

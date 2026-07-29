@@ -4,6 +4,8 @@ import { FaDownload, FaArrowLeft } from "react-icons/fa";
 import AtsCvContent from "@/components/cv/AtsCvContent";
 import { Metadata } from "next";
 
+import A4PaperWrapper from "@/components/cv/A4PaperWrapper";
+
 export const revalidate = 0; // Always fresh from DB
 
 function getFormattedDate(): string {
@@ -31,30 +33,8 @@ export default async function AtsCvPage() {
 
   return (
     <div className="min-h-screen bg-neutral-900 py-8 px-4 print:bg-white print:py-0 print:px-0 print:m-0 print:min-h-0 print:w-full">
-      {/* Top Controls Bar (Hidden during print) */}
-      <div className="max-w-[800px] mx-auto mb-6 flex justify-between items-center print:hidden">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white transition"
-        >
-          <FaArrowLeft size={12} />
-          Kembali ke Dashboard
-        </Link>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            className="bg-pink-600 hover:bg-pink-500 text-white font-semibold text-xs px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg cursor-pointer transition print:hidden"
-            id="print-btn"
-          >
-            <FaDownload size={12} />
-            Download PDF / Print
-          </button>
-        </div>
-      </div>
 
-      {/* ATS CV Document Paper Container */}
-      <div className="max-w-[210mm] w-full min-h-[297mm] print:min-h-0 print:w-full mx-auto bg-white text-gray-900 p-6 sm:p-10 shadow-2xl rounded-sm font-sans leading-relaxed print:p-8 print:shadow-none print:border-none print:max-w-none print:bg-white print:text-black print:m-0">
-        {/* Render Unified ATS CV Component (Header + Content) */}
+      <A4PaperWrapper variant="ats">
         <AtsCvContent
           profile={profile}
           educations={educations}
@@ -65,19 +45,7 @@ export default async function AtsCvPage() {
           languages={languages}
           skills={skills}
         />
-      </div>
-
-      {/* Dynamic document title & print script helper */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            document.title = ${JSON.stringify(pageTitle)};
-            document.getElementById('print-btn')?.addEventListener('click', function() {
-              window.print();
-            });
-          `,
-        }}
-      />
+      </A4PaperWrapper>
     </div>
   );
 }

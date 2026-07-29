@@ -62,7 +62,7 @@ export default function SocialLinksCard({
         )}
       </h1>
 
-      <div className="grid grid-cols-3 gap-2 text-xs">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
         <Link
           href={socialGithub || "https://github.com/LowScarlet"}
           target="_blank"

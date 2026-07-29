@@ -2,6 +2,7 @@ import { getFullCvData } from "@/db/queries/cv";
 import Link from "next/link";
 import { FaDownload, FaArrowLeft } from "react-icons/fa";
 import CreativeCvContent from "@/components/cv/CreativeCvContent";
+import A4PaperWrapper from "@/components/cv/A4PaperWrapper";
 import { Metadata } from "next";
 
 export const revalidate = 0; // Always fresh from DB
@@ -53,8 +54,7 @@ export default async function CreativeCvPage() {
       </div>
 
       {/* Creative CV Document Paper Container */}
-      <div className="max-w-[210mm] w-full min-h-[297mm] print:min-h-0 print:w-full mx-auto shadow-2xl rounded-sm print:shadow-none print:border-none print:max-w-none print:bg-white print:p-6 print:m-0">
-        {/* Render Modular Creative Content Body (includes Sidebar & Main Column) */}
+      <A4PaperWrapper variant="creative">
         <CreativeCvContent
           profile={profile}
           educations={educations}
@@ -65,7 +65,7 @@ export default async function CreativeCvPage() {
           languages={languages}
           skills={skills}
         />
-      </div>
+      </A4PaperWrapper>
 
       {/* Dynamic document title & print script helper */}
       <script

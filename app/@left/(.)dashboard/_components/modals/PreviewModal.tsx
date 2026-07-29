@@ -7,6 +7,7 @@ import { SiReaddotcv } from "react-icons/si";
 import { FaSpinner, FaExternalLinkAlt } from "react-icons/fa";
 import AtsCvContent from "@/components/cv/AtsCvContent";
 import CreativeCvContent from "@/components/cv/CreativeCvContent";
+import A4PaperWrapper from "@/components/cv/A4PaperWrapper";
 import Link from "next/link";
 
 interface PreviewModalProps {
@@ -68,46 +69,44 @@ export default function PreviewModal({
         </div>
       }
     >
-      <div className="space-y-4 flex flex-col h-[78vh]">
+      <div className="space-y-4">
         {loading ? (
-          <div className="flex-1 flex flex-col justify-center items-center gap-3 bg-neutral-950/60 rounded-xl border border-neutral-800">
+          <div className="h-64 flex flex-col justify-center items-center gap-3 bg-neutral-950/60 rounded-xl border border-neutral-800">
             <FaSpinner className="animate-spin text-pink-500 text-2xl" />
             <span className="text-xs text-gray-400 font-medium">Fetching CV Data from Database...</span>
           </div>
         ) : error ? (
-          <div className="flex-1 flex justify-center items-center text-xs text-red-400 bg-neutral-950/60 rounded-xl border border-neutral-800 p-4">
+          <div className="h-64 flex justify-center items-center text-xs text-red-400 bg-neutral-950/60 rounded-xl border border-neutral-800 p-4">
             {error}
           </div>
         ) : cvData ? (
-          isCreativeRoute ? (
-            <div className="flex-1 overflow-y-auto bg-slate-400 text-slate-900 p-2 sm:p-4 rounded-xl shadow-xl font-sans text-left">
-              {/* Creative CV Content (Includes Left Sidebar & Right Column with Header) */}
-              <CreativeCvContent
-                profile={cvData.profile}
-                educations={cvData.educations}
-                experiences={cvData.experiences}
-                projects={cvData.projects}
-                certifications={cvData.certifications}
-                volunteers={cvData.volunteers}
-                languages={cvData.languages}
-                skills={cvData.skills}
-              />
-            </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto bg-white text-gray-900 p-6 sm:p-8 rounded-xl shadow-xl font-sans text-left space-y-4">
-              {/* Unified ATS CV Component (Header + Content) */}
-              <AtsCvContent
-                profile={cvData.profile}
-                educations={cvData.educations}
-                experiences={cvData.experiences}
-                projects={cvData.projects}
-                certifications={cvData.certifications}
-                volunteers={cvData.volunteers}
-                languages={cvData.languages}
-                skills={cvData.skills}
-              />
-            </div>
-          )
+          <div className="w-full flex justify-center py-1">
+            <A4PaperWrapper variant={isCreativeRoute ? "creative" : "ats"}>
+              {isCreativeRoute ? (
+                <CreativeCvContent
+                  profile={cvData.profile}
+                  educations={cvData.educations}
+                  experiences={cvData.experiences}
+                  projects={cvData.projects}
+                  certifications={cvData.certifications}
+                  volunteers={cvData.volunteers}
+                  languages={cvData.languages}
+                  skills={cvData.skills}
+                />
+              ) : (
+                <AtsCvContent
+                  profile={cvData.profile}
+                  educations={cvData.educations}
+                  experiences={cvData.experiences}
+                  projects={cvData.projects}
+                  certifications={cvData.certifications}
+                  volunteers={cvData.volunteers}
+                  languages={cvData.languages}
+                  skills={cvData.skills}
+                />
+              )}
+            </A4PaperWrapper>
+          </div>
         ) : null}
 
         {/* Bottom Actions Bar */}

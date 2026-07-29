@@ -21,6 +21,7 @@ export function formatNumber(num: number) {
 }
 
 export const categoryTitles: Record<string, string> = {
+  all: "All Projects",
   webs: "Web Applications",
   games: "Game Developments",
   androidApps: "Android Applications",

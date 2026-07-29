@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { SiReaddotcv } from "react-icons/si";
+import { FaUserCheck } from "react-icons/fa";
+import Link from "next/link";
 
 interface CvCardProps {
   onPreviewCv: (url: string, title: string) => void;
@@ -30,7 +32,7 @@ export default function CvCard({
         </span>
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 pt-1">
 
         {/* CREATIVE CV */}
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
@@ -52,7 +54,7 @@ export default function CvCard({
             className="w-full block relative bg-linear-to-r from-pink-600 via-purple-600 to-violet-600 hover:opacity-90 px-4 py-2.5 rounded-lg overflow-hidden font-semibold text-white text-xs text-center transition cursor-pointer shadow-md"
           >
             <span className="absolute inset-0 bg-white/10 opacity-30 blur-sm" />
-            ATS
+            ATS Version
           </button>
         </motion.div>
       </div>
