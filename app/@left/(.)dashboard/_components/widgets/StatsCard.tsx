@@ -1,5 +1,6 @@
 'use client'
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaUsers, FaCode } from "react-icons/fa";
 import { Counter } from "@/components/utils/Counter";
@@ -30,23 +31,26 @@ export default function StatsCard({
   return (
     <div className="gap-3 grid grid-cols-2">
       {/* Visitors Stat */}
-      <motion.div
-        variants={item}
-        whileHover={{ scale: 1.03 }}
-        className="relative bg-neutral-800 p-4 rounded-xl overflow-hidden cursor-pointer"
-      >
-        <div className="absolute inset-0 bg-linear-to-r from-pink-500/10 to-violet-500/10" />
+      <Link href="/visitor">
+        <motion.div
+          variants={item}
+          whileHover={{ scale: 1.03 }}
+          className="relative bg-neutral-800 p-4 rounded-xl overflow-hidden cursor-pointer group hover:bg-neutral-750 transition"
+        >
+          <div className="absolute inset-0 bg-linear-to-r from-pink-500/10 to-violet-500/10" />
 
-        <div className="z-10 relative">
-          <div className="flex justify-between items-center">
-            <h2 className="text-gray-400 text-xs">Visitors</h2>
-            <FaUsers className="text-pink-400 text-sm" />
+          <div className="z-10 relative">
+            <div className="flex justify-between items-center">
+              <h2 className="text-gray-400 group-hover:text-pink-300 text-xs transition">Visitors</h2>
+              <FaUsers className="text-pink-400 text-sm" />
+            </div>
+            <p className="mt-1 font-bold text-white text-xl">
+              <Counter value={visitorsCount} />
+            </p>
           </div>
-          <p className="mt-1 font-bold text-white text-xl">
-            <Counter value={visitorsCount} />
-          </p>
-        </div>
-      </motion.div>
+        </motion.div>
+      </Link>
+
 
       {/* Projects Stat */}
       <motion.div

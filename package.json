@@ -11,6 +11,8 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@tailwindcss/typography": "^0.5.19",
+    "@types/react-simple-maps": "^3.0.6",
+    "@types/topojson-client": "^3.1.5",
     "@vercel/blob": "^2.3.3",
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.1",
@@ -23,11 +25,13 @@
     "react-dom": "19.2.4",
     "react-icons": "^5.6.0",
     "react-markdown": "^10.1.0",
+    "react-simple-maps": "^3.0.0",
     "react-type-animation": "^3.2.0",
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.5.0",
     "tailwind-scrollbar": "^4.0.2",
+    "topojson-client": "^3.1.0",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
