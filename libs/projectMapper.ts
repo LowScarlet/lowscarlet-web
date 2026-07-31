@@ -39,8 +39,8 @@ export function mapProjectFromDb(dbProject: any) {
   return {
     ...dbProject,
     images: (dbProject.images || []).map((img: any) => img.src),
-    tags: (dbProject.tags || []).map((key: string) => (project_type as any)[key]).filter(Boolean),
-    techs: (dbProject.techs || []).map((key: string) => (techsMap as any)[key]).filter(Boolean),
+    tags: (dbProject.tags || []).map((key: string) => (project_type as any)[key] || { title: key }),
+    techs: (dbProject.techs || []).map((key: string) => (techsMap as any)[key] || { title: key }),
     links: (dbProject.links || []).map((link: any) => ({
       href: link.href,
       icon: getIconComponent(link.icon),
