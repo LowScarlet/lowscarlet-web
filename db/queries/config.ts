@@ -24,12 +24,72 @@ export const defaultConfigs = [
     id: "COMMENTS_COUNT",
     value: 0,
   },
+  {
+    id: "CV_ATS_URL",
+    value: "/resume_ats.pdf",
+  },
+  {
+    id: "CV_CREATIVE_URL",
+    value: "/cv-creative.pdf",
+  },
+  {
+    id: "SOCIAL_GITHUB",
+    value: "https://github.com/LowScarlet",
+  },
+  {
+    id: "SOCIAL_INSTAGRAM",
+    value: "https://www.instagram.com/lowscarl3t",
+  },
+  {
+    id: "SOCIAL_LINKEDIN",
+    value: "https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221",
+  },
+  {
+    id: "SOCIAL_EMAIL",
+    value: "tegarmaulanafahreza.email@gmail.com",
+  },
+  {
+    id: "SOCIAL_WHATSAPP",
+    value: "https://wa.me/6281270634992",
+  },
+  {
+    id: "SOCIAL_DISCORD",
+    value: "https://discord.com/users/lowscarlet",
+  },
+  {
+    id: "PROFILE_FULL_NAME",
+    value: "TEGAR MAULANA FAHREZA",
+  },
+  {
+    id: "PROFILE_LOCATION",
+    value: "Pekanbaru, Riau, Indonesia",
+  },
+  {
+    id: "PROFILE_PHONE",
+    value: "+62 812 7063 4992",
+  },
+  {
+    id: "PROFILE_WEBSITE",
+    value: "lowscarlet.my.id",
+  },
+  {
+    id: "PROFILE_PHOTO_PRO",
+    value: "",
+  },
+  {
+    id: "PROFILE_PHOTO_PAS",
+    value: "",
+  },
+  {
+    id: "PROFILE_SUMMARY",
+    value: "Passionate Full Stack Web Developer & Cloud Engineer with experience in building scalable web applications, academic information systems, and point-of-sale solutions.",
+  },
 ] as const;
 
 type DefaultConfigs = typeof defaultConfigs;
 
 type ConfigMap = {
-  [K in DefaultConfigs[number] as K["id"]]: K["value"];
+  [K in DefaultConfigs[number]as K["id"]]: K["value"];
 };
 
 type Normalize<T> =
@@ -87,9 +147,35 @@ export function mapConfigs(configs: { id: string; value: any }[]) {
   );
 }
 
-export async function getAllConfigs() {
+export async function getAllConfigs(): Promise<AppConfigMap> {
   const raw = await db.select().from(config);
-  return mapConfigs(raw)
+
+  const mapped = Object.fromEntries(
+    raw.map(c => [c.id, c.value])
+  ) as Partial<AppConfigMap>;
+
+  return {
+    STATUS: mapped.STATUS ?? "AVAILABLE_FOR_WORK",
+    STATUS_NOTE: mapped.STATUS_NOTE ?? "Available for work!",
+    VISITORS_COUNT: Number(mapped.VISITORS_COUNT ?? 0),
+    PROJECTS_COUNT: Number(mapped.PROJECTS_COUNT ?? 0),
+    COMMENTS_COUNT: Number(mapped.COMMENTS_COUNT ?? 0),
+    CV_ATS_URL: String(mapped.CV_ATS_URL ?? "/resume_ats.pdf"),
+    CV_CREATIVE_URL: String(mapped.CV_CREATIVE_URL ?? "/cv-creative.pdf"),
+    SOCIAL_GITHUB: String(mapped.SOCIAL_GITHUB ?? "https://github.com/LowScarlet"),
+    SOCIAL_INSTAGRAM: String(mapped.SOCIAL_INSTAGRAM ?? "https://www.instagram.com/lowscarl3t"),
+    SOCIAL_LINKEDIN: String(mapped.SOCIAL_LINKEDIN ?? "https://www.linkedin.com/in/tegar-maulana-fahreza-04615a221"),
+    SOCIAL_EMAIL: String(mapped.SOCIAL_EMAIL ?? "tegarmaulanafahreza.email@gmail.com"),
+    SOCIAL_WHATSAPP: String(mapped.SOCIAL_WHATSAPP ?? "https://wa.me/6281270634992"),
+    SOCIAL_DISCORD: String(mapped.SOCIAL_DISCORD ?? "https://discord.com/users/lowscarlet"),
+    PROFILE_FULL_NAME: String(mapped.PROFILE_FULL_NAME ?? "TEGAR MAULANA FAHREZA"),
+    PROFILE_LOCATION: String(mapped.PROFILE_LOCATION ?? "Pekanbaru, Riau, Indonesia"),
+    PROFILE_PHONE: String(mapped.PROFILE_PHONE ?? "+62 812 7063 4992"),
+    PROFILE_WEBSITE: String(mapped.PROFILE_WEBSITE ?? "lowscarlet.my.id"),
+    PROFILE_PHOTO_PRO: String(mapped.PROFILE_PHOTO_PRO ?? ""),
+    PROFILE_PHOTO_PAS: String(mapped.PROFILE_PHOTO_PAS ?? ""),
+    PROFILE_SUMMARY: String(mapped.PROFILE_SUMMARY ?? "Passionate Full Stack Web Developer & Cloud Engineer with experience in building scalable web applications, academic information systems, and point-of-sale solutions."),
+  };
 }
 
 export async function incrementVisitorsCount() {

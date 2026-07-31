@@ -10,8 +10,10 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import { FiChevronLeft, FiChevronRight, FiLink, FiCheck } from "react-icons/fi";
 
 type ProjectProps = {
+  id?: string;
   images: string[];
   title: string;
   description: string;
@@ -27,7 +29,7 @@ type ProjectProps = {
   isLast?: boolean;
 };
 
-/* ANIMATION VARIANTS */
+/* ANIMATION VARIANTS FOR CONTENT */
 const container = {
   hidden: {},
   show: {
@@ -46,7 +48,27 @@ const item = {
   },
 };
 
+/* SLOW-SLIDE VARIANTS FOR IMAGES */
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? "100%" : "-100%",
+    opacity: 0.3,
+    scale: 1.05,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? "100%" : "-100%",
+    opacity: 0.3,
+    scale: 0.95,
+  }),
+};
+
 export default function ProjectCard({
+  id,
   images = [],
   title,
   description,
@@ -59,45 +81,134 @@ export default function ProjectCard({
   isLast = false,
 }: ProjectProps) {
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window === "undefined") return;
+    const projectUrl = id ? `${window.location.origin}/projects/id/${id}` : window.location.href;
+    navigator.clipboard.writeText(projectUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const MAX_LENGTH = 180;
   const isLong = description.length > MAX_LENGTH;
   const shortText = description.slice(0, MAX_LENGTH) + "...";
 
+  // Slow Auto-slide every 4.5 seconds (paused when hovered)
   useEffect(() => {
-    if (images.length === 0) return;
+    if (images.length <= 1 || isPaused) return;
 
     const interval = setInterval(() => {
+      setDirection(1);
       setIndex((prev) => (prev + 1) % images.length);
-    }, 3000);
+    }, 4500);
 
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, [images.length, isPaused]);
+
+  const handleNext = () => {
+    setDirection(1);
+    setIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleSelect = (newIndex: number) => {
+    setDirection(newIndex > index ? 1 : -1);
+    setIndex(newIndex);
+  };
 
   return (
     <div className="space-y-4">
-      {/* IMAGE */}
-      <div className="relative rounded-2xl w-full aspect-video overflow-hidden">
-        <AnimatePresence mode="wait">
+      {/* IMAGE SLOW-SLIDER CONTAINER */}
+      <div
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        className="group relative rounded-2xl w-full aspect-video overflow-hidden bg-neutral-900 shadow-lg border border-white/5 select-none"
+      >
+        <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.div
             key={index}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.5 }}
-            className="relative w-full h-full"
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 220, damping: 28 },
+              opacity: { duration: 0.4 },
+              scale: { duration: 0.4 },
+            }}
+            className="absolute inset-0 w-full h-full"
           >
             {images.length > 0 && (
               <Image
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxIDEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMxMDEwMTAiLz48L3N2Zz4="
                 src={images[index]}
-                alt="project image"
+                alt={`${title} screenshot ${index + 1}`}
                 fill
-                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
             )}
           </motion.div>
         </AnimatePresence>
+
+        {/* IMAGE GRADIENT OVERLAY FOR CONTRAST */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none z-10" />
+
+        {/* COUNTER BADGE */}
+        {images.length > 1 && (
+          <div className="absolute top-3 right-3 z-20 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[11px] font-mono font-medium text-white/90 tracking-wide">
+            {index + 1} / {images.length}
+          </div>
+        )}
+
+        {/* PREV / NEXT NAV BUTTONS */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={handlePrev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/15 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/80 hover:scale-110 active:scale-95 cursor-pointer"
+              aria-label="Previous image"
+            >
+              <FiChevronLeft className="text-xl" />
+            </button>
+            <button
+              onClick={handleNext}
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/15 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/80 hover:scale-110 active:scale-95 cursor-pointer"
+              aria-label="Next image"
+            >
+              <FiChevronRight className="text-xl" />
+            </button>
+          </>
+        )}
+
+        {/* PAGINATION DOTS */}
+        {images.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/10">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => handleSelect(i)}
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  i === index ? "w-6 bg-white" : "w-1.5 bg-white/40 hover:bg-white/80"
+                }`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* CONTENT */}
@@ -113,10 +224,16 @@ export default function ProjectCard({
             variants={item}
             className="mt-4 font-bold text-white text-xl"
           >
-            {title}
+            {id ? (
+              <Link href={`/projects/id/${id}`} scroll={false} className="hover:text-cyan-400 transition cursor-pointer">
+                {title}
+              </Link>
+            ) : (
+              title
+            )}
           </motion.h1>
 
-          <motion.div variants={item} className="flex flex-wrap gap-2">
+          <motion.div variants={item} className="flex flex-wrap gap-2 mt-2">
             {tags.map((tag, i) => (
               <Badge
                 key={i}
@@ -131,9 +248,7 @@ export default function ProjectCard({
 
         {/* DESCRIPTION */}
         <div>
-          <motion.div
-            variants={item}
-          >
+          <motion.div variants={item}>
             {/* COLLAPSED */}
             {!expanded && (
               <div className="dark:prose-invert mt-2 max-w-none prose">
@@ -162,7 +277,7 @@ export default function ProjectCard({
               </div>
             )}
 
-            {/* EXPANDED (pakai animasi) */}
+            {/* EXPANDED */}
             <AnimatePresence initial={false}>
               {expanded && (
                 <motion.div
@@ -196,7 +311,6 @@ export default function ProjectCard({
                       {description}
                     </ReactMarkdown>
 
-                    {/* SHOW LESS di bawah */}
                     <button
                       onClick={() => setExpanded(false)}
                       className="mt-2 text-blue-400 text-sm hover:underline cursor-pointer"
@@ -212,18 +326,38 @@ export default function ProjectCard({
           {/* LINKS */}
           <motion.div
             variants={item}
-            className="flex gap-3 mt-6 py-2 overflow-x-auto"
+            className="flex gap-3 mt-6 py-2 overflow-x-auto items-center"
           >
             {links.map(({ href, icon: Icon }, i) => (
               <Link
                 key={i}
                 target="_blank"
                 href={href}
+                aria-label={`Project link ${i + 1} for ${title}`}
                 className="flex justify-center items-center bg-neutral-50 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-900 px-3 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 transition"
               >
                 <Icon className="text-2xl" />
               </Link>
             ))}
+
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              aria-label="Copy project link"
+              title={copied ? "Link copied!" : "Copy project link"}
+              className="flex justify-center items-center bg-neutral-50 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-900 px-3 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-md text-neutral-900 dark:text-neutral-100 transition cursor-pointer relative group"
+            >
+              {copied ? (
+                <FiCheck className="text-2xl text-emerald-400" />
+              ) : (
+                <FiLink className="text-2xl" />
+              )}
+              {copied && (
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-neutral-900 text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded border border-neutral-800 whitespace-nowrap shadow-md">
+                  Copied!
+                </span>
+              )}
+            </button>
           </motion.div>
 
           {/* DATE */}
@@ -247,8 +381,8 @@ export default function ProjectCard({
                 {contributors.length === 2
                   ? `${contributors[0]} and ${contributors[1]}`
                   : `${contributors
-                    .slice(0, -1)
-                    .join(", ")} and ${contributors.at(-1)}`}
+                      .slice(0, -1)
+                      .join(", ")} and ${contributors.at(-1)}`}
               </span>
             </motion.div>
           )}

@@ -10,7 +10,7 @@ export default function MediaPlayer() {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const START_TIME = 10; // ⬅️ mulai dari detik 10
+  const START_TIME = 10; // mulai dari detik 10
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -89,6 +89,7 @@ export default function MediaPlayer() {
           max={100}
           value={progress}
           onChange={handleSeek}
+          aria-label="Seek track position"
           className="w-full accent-pink-500"
         />
 
@@ -102,6 +103,7 @@ export default function MediaPlayer() {
       <div className="flex justify-center items-center">
         <button
           onClick={togglePlay}
+          aria-label={playing ? "Pause track" : "Play track"}
           className="flex justify-center items-center bg-linear-to-r from-pink-500 to-violet-500 rounded-full w-10 h-10 hover:scale-105 transition"
         >
           {playing ? <FaPause /> : <FaPlay />}

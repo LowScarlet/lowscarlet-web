@@ -1,6 +1,4 @@
-"use client"
-
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 
@@ -24,9 +22,18 @@ export default function Badge({
     small: "px-1.5 py-0.5 text-xs leading-3 gap-1",
   };
 
+  const labelText = typeof title === "string" ? title : "Badge icon";
+
+  const renderIcon = React.isValidElement(icon)
+    ? React.cloneElement(icon as React.ReactElement<{ "aria-label"?: string; "aria-hidden"?: string }>, {
+        "aria-label": labelText,
+        "aria-hidden": "true",
+      })
+    : icon;
+
   const content = (
     <>
-      <span>{icon}</span>
+      <span className="flex items-center">{renderIcon}</span>
       {title}
     </>
   );

@@ -9,7 +9,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isOpen = pathname.includes('/dashboard');
+  const isOpen = pathname.includes('/dashboard') || pathname.includes('/auth');
   const isHome = pathname == '/';
 
   if (!isOpen && !isHome) {
