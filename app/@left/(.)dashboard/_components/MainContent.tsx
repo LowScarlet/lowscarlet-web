@@ -11,6 +11,7 @@ import DashboardHeader from "./widgets/DashboardHeader";
 import StatsCard from "./widgets/StatsCard";
 import StatusCard from "./widgets/StatusCard";
 import CvCard from "./widgets/CvCard";
+import AdminToolsCard from "./widgets/AdminToolsCard";
 import SocialLinksCard from "./widgets/SocialLinksCard";
 import CommitList from "./widgets/CommitList";
 
@@ -20,6 +21,7 @@ import SocialModal from "./modals/SocialModal";
 import PreviewModal from "./modals/PreviewModal";
 import ProjectsModal from "./modals/ProjectsModal";
 import ProfileModal from "./modals/ProfileModal";
+import CoverLetterModal from "./modals/CoverLetterModal";
 
 const container = {
   hidden: {},
@@ -43,6 +45,7 @@ export default function MainContent({
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showProjectsModal, setShowProjectsModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showCoverLetterModal, setShowCoverLetterModal] = useState(false);
 
   // Centralized Config / Projects state
   const [currentConfig, setCurrentConfig] = useState<AppConfigMap>(config);
@@ -240,6 +243,9 @@ export default function MainContent({
           />
         </motion.div>
 
+        {/* Admin Tools Widget (admin only) */}
+        {isAdmin && <AdminToolsCard onOpenCoverLetter={() => setShowCoverLetterModal(true)} />}
+
         {/* Curriculum Vitae Widget */}
         <CvCard
           onPreviewCv={handlePreviewCv}
@@ -308,6 +314,11 @@ export default function MainContent({
           // Re-fetch projects or config if needed
           fetchAllProjects();
         }}
+      />
+
+      <CoverLetterModal
+        isOpen={showCoverLetterModal}
+        onClose={() => setShowCoverLetterModal(false)}
       />
     </>
   );

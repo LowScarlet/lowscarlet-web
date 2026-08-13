@@ -69,7 +69,7 @@ export default function VisitorPage() {
       >
         <div className="flex items-center gap-3">
           <Link
-            href="/dashboard"
+            href="/"
             className="flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-900/80 border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 hover:bg-neutral-800 transition shadow-lg"
           >
             <FiArrowLeft className="text-lg" />
