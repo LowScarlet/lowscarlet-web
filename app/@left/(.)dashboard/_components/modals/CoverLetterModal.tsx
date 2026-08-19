@@ -207,7 +207,7 @@ export default function CoverLetterModal({
         <div className="flex items-center space-x-2">
           <HiOutlineDocumentText className="text-orange-500 text-lg" />
           <span className="font-bold text-white text-base">
-            {step === "form" ? "Buat Surat Lamaran (AI)" : "Preview Surat Lamaran"}
+            {step === "form" ? "Buat Surat Lamaran Otomatis" : "Preview Surat Lamaran"}
           </span>
         </div>
       }
@@ -248,22 +248,20 @@ export default function CoverLetterModal({
                 <button
                   type="button"
                   onClick={() => setType("kerja")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                    type === "kerja"
-                      ? "bg-orange-600 text-white shadow-md"
-                      : "bg-neutral-900 border border-neutral-800 text-gray-400 hover:text-white hover:border-neutral-700"
-                  }`}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${type === "kerja"
+                    ? "bg-orange-600 text-white shadow-md"
+                    : "bg-neutral-900 border border-neutral-800 text-gray-400 hover:text-white hover:border-neutral-700"
+                    }`}
                 >
                   Kerja
                 </button>
                 <button
                   type="button"
                   onClick={() => setType("magang")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                    type === "magang"
-                      ? "bg-orange-600 text-white shadow-md"
-                      : "bg-neutral-900 border border-neutral-800 text-gray-400 hover:text-white hover:border-neutral-700"
-                  }`}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${type === "magang"
+                    ? "bg-orange-600 text-white shadow-md"
+                    : "bg-neutral-900 border border-neutral-800 text-gray-400 hover:text-white hover:border-neutral-700"
+                    }`}
                 >
                   Magang
                 </button>
@@ -277,22 +275,20 @@ export default function CoverLetterModal({
                 <button
                   type="button"
                   onClick={() => setLanguage("id")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                    language === "id"
-                      ? "bg-orange-600 text-white shadow-md"
-                      : "bg-neutral-900 border border-neutral-800 text-gray-400 hover:text-white hover:border-neutral-700"
-                  }`}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${language === "id"
+                    ? "bg-orange-600 text-white shadow-md"
+                    : "bg-neutral-900 border border-neutral-800 text-gray-400 hover:text-white hover:border-neutral-700"
+                    }`}
                 >
                   🇮🇩 ID
                 </button>
                 <button
                   type="button"
                   onClick={() => setLanguage("en")}
-                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                    language === "en"
-                      ? "bg-orange-600 text-white shadow-md"
-                      : "bg-neutral-900 border border-neutral-800 text-gray-400 hover:text-white hover:border-neutral-700"
-                  }`}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${language === "en"
+                    ? "bg-orange-600 text-white shadow-md"
+                    : "bg-neutral-900 border border-neutral-800 text-gray-400 hover:text-white hover:border-neutral-700"
+                    }`}
                 >
                   🇬🇧 EN
                 </button>
@@ -382,10 +378,10 @@ export default function CoverLetterModal({
               {loading ? (
                 <>
                   <FaSpinner className="w-3.5 h-3.5 animate-spin" />
-                  <span>AI Generating...</span>
+                  <span>Generating...</span>
                 </>
               ) : (
-                "✨ Generate dengan AI"
+                "Generate"
               )}
             </button>
           </div>

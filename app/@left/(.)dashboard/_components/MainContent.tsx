@@ -38,7 +38,7 @@ export default function MainContent({
   config: AppConfigMap;
 }) {
   const [isAdmin, setIsAdmin] = useState(false);
-  
+
   // Modals Visibility
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSocialModal, setShowSocialModal] = useState(false);
@@ -198,9 +198,9 @@ export default function MainContent({
 
       {/* Main Widgets Container */}
       <div className="space-y-4 px-6 py-2 overflow-y-auto text-gray-400 grow">
-        
+
         {/* Under Development Notice */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: -10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -217,7 +217,7 @@ export default function MainContent({
             </motion.span>
             <span>Sorry, the website is currently under development</span>
           </h1>
-        </motion.div>
+        </motion.div> */}
 
         {/* Dynamic Interactive Cards Grid */}
         <motion.div

@@ -52,8 +52,8 @@ export default function CoverLetterContent({
   const whatsappUrl = profile.whatsapp
     ? getFullUrl(profile.whatsapp)
     : cleanPhone
-    ? `https://wa.me/${cleanPhone.replace(/^\+/, "")}`
-    : "#";
+      ? `https://wa.me/${cleanPhone.replace(/^\+/, "")}`
+      : "#";
 
   const websiteUrl = profile.website ? getFullUrl(profile.website) : "#";
   const displayWebsite = profile.website ? profile.website.replace(/^https?:\/\//, "").replace(/\/$/, "") : "lowscarlet.my.id";
@@ -132,7 +132,7 @@ export default function CoverLetterContent({
                     href={whatsappUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="hover:underline text-blue-700 font-medium print:text-gray-900 print:no-underline"
+                    className="hover:underline font-medium print:text-gray-900 print:no-underline"
                   >
                     {profile.phone}
                   </a>
@@ -148,7 +148,7 @@ export default function CoverLetterContent({
                 {profile.email ? (
                   <a
                     href={`mailto:${profile.email}`}
-                    className="hover:underline text-blue-700 font-medium print:text-gray-900 print:no-underline"
+                    className="hover:underline font-medium print:text-gray-900 print:no-underline"
                   >
                     {profile.email}
                   </a>
@@ -188,9 +188,8 @@ export default function CoverLetterContent({
 
       {/* Attachments Bulleted List with Clickable Portfolio Link */}
       <ul className="list-disc pl-8 mb-4 space-y-0.5 text-[10pt]">
-        <li>Curriculum Vitae (CV)</li>
         <li>
-          {isEn ? "Portfolio" : "Portofolio"}{" "}
+          {isEn ? "Portfolio" : "Portofolio"} {" "}
           {profile.website ? (
             <>
               (
@@ -198,9 +197,26 @@ export default function CoverLetterContent({
                 href={websiteUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="hover:underline text-blue-700 font-medium print:text-gray-900 print:no-underline"
+                className="hover:underline font-medium print:text-gray-900 print:no-underline"
               >
                 {displayWebsite}
+              </a>
+              )
+            </>
+          ) : null}
+        </li>
+        <li>
+          Curriculum Vitae {" "}
+          {profile.website ? (
+            <>
+              (
+              <a
+                href={`${websiteUrl}/cv/ats`}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:underline font-medium print:text-gray-900 print:no-underline"
+              >
+                {displayWebsite}/cv/ats
               </a>
               )
             </>

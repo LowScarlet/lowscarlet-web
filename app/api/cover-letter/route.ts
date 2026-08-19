@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
     const ai = new GoogleGenAI({ apiKey: GOOGLE_AI_API_KEY });
 
     // Fallback model candidates list
-    const modelCandidates = ["gemini-3.1-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash"];
+    const modelCandidates = ["gemini-3.1-flash-lite"];
     if (body && typeof (body as any).model === "string") {
       modelCandidates.unshift((body as any).model);
     }
