@@ -57,19 +57,111 @@
   will-change: transform;
 }
 
-/* Hide default OS cursor on desktop pointer devices */
+/* Pawsor Cat Cursor System */
 @media (hover: hover) and (pointer: fine) {
-
   html,
-  body,
+  body {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_blk_normal.cur') 5 10,
+            url('/pawsor_blk_ani-cur/pawsor_blk_normal.png') 5 10,
+            auto !important;
+  }
+
   a,
   button,
-  input,
-  select,
-  textarea,
   [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  summary,
+  [onclick],
+  label[for],
   .cursor-pointer {
-    cursor: none !important;
+    cursor: url('/pawsor_blk_ani-cur/pawsor_blk_link.cur') 10 3,
+            url('/pawsor_blk_ani-cur/pawsor_blk_link.png') 10 3,
+            pointer !important;
+  }
+
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  textarea,
+  [contenteditable="true"],
+  .cursor-text {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_blk_text.cur') 5 15,
+            url('/pawsor_blk_ani-cur/pawsor_blk_text.png') 5 15,
+            text !important;
+  }
+
+  [disabled],
+  [aria-disabled="true"],
+  .disabled,
+  .cursor-not-allowed {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_blk_unavailable.cur') 0 0,
+            url('/pawsor_blk_ani-cur/pawsor_blk_unavailable.png') 0 0,
+            not-allowed !important;
+  }
+
+  [title],
+  abbr,
+  .cursor-help {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_blk_help.cur') 5 10,
+            url('/pawsor_blk_ani-cur/pawsor_blk_help.png') 5 10,
+            help !important;
+  }
+
+  .cursor-move,
+  .cursor-grab,
+  [draggable="true"] {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_resize_move.cur') 15 15,
+            url('/pawsor_blk_ani-cur/pawsor_resize_move.png') 15 15,
+            move !important;
+  }
+
+  .cursor-grabbing {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_resize_move.cur') 15 15,
+            url('/pawsor_blk_ani-cur/pawsor_resize_move.png') 15 15,
+            grabbing !important;
+  }
+
+  .cursor-ew-resize,
+  .cursor-col-resize {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_resize_hor.cur') 15 15,
+            url('/pawsor_blk_ani-cur/pawsor_resize_hor.png') 15 15,
+            ew-resize !important;
+  }
+
+  .cursor-ns-resize,
+  .cursor-row-resize {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_resize_ver.cur') 15 15,
+            url('/pawsor_blk_ani-cur/pawsor_resize_ver.png') 15 15,
+            ns-resize !important;
+  }
+
+  .cursor-nesw-resize {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_resize_diag1.cur') 15 15,
+            url('/pawsor_blk_ani-cur/pawsor_resize_diag1.png') 15 15,
+            nesw-resize !important;
+  }
+
+  .cursor-nwse-resize {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_resize_diag2.cur') 15 15,
+            url('/pawsor_blk_ani-cur/pawsor_resize_diag2.png') 15 15,
+            nwse-resize !important;
+  }
+
+  .cursor-wait,
+  [aria-busy="true"],
+  .loading {
+    cursor: url('/pawsor_blk_ani-cur/pawsor_blk_busy.cur') 0 0,
+            url('/pawsor_blk_ani-cur/pawsor_blk_busy.png') 0 0,
+            wait !important;
   }
 }
 

@@ -68,6 +68,14 @@ export const projects = pgTable("projects", {
   cvSubtitle: text(),
   cvHighlights: jsonb().$type<string[]>() ,
   displayOrder: integer().default(0),
+
+  // Extended fields for Portfolio generation
+  portfolioSummary: text(),
+  projectOrigin: text(),
+  isGroupProject: boolean().default(false),
+  roleInProject: text(),
+  projectImpact: text(),
+  projectLearnings: text(),
 });
 
 export const educations = pgTable("educations", {

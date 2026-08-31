@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { HiOutlineWrenchScrewdriver } from "react-icons/hi2";
 import { HiOutlineDocumentText } from "react-icons/hi2";
+import { HiOutlineClipboardDocumentList } from "react-icons/hi2";
+import Link from "next/link";
 
 interface AdminToolsCardProps {
   onOpenCoverLetter: () => void;
@@ -43,6 +45,18 @@ export default function AdminToolsCard({
             <HiOutlineDocumentText className="relative z-10 text-base" />
             <span className="relative z-10">Buat Lamaran Kerja / Magang</span>
           </button>
+        </motion.div>
+
+        {/* Generate Portfolio */}
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
+          <Link
+            href="/portfolio"
+            className="w-full flex items-center justify-center gap-2 relative bg-linear-to-r from-teal-600 via-cyan-600 to-blue-600 hover:opacity-90 px-4 py-2.5 rounded-lg overflow-hidden font-semibold text-white text-xs text-center transition cursor-pointer shadow-md"
+          >
+            <span className="absolute inset-0 bg-white/10 opacity-30 blur-sm" />
+            <HiOutlineClipboardDocumentList className="relative z-10 text-base" />
+            <span className="relative z-10">Generate Portfolio</span>
+          </Link>
         </motion.div>
       </div>
     </motion.div>
